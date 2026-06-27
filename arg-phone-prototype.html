@@ -341,7 +341,7 @@
       opacity: 0;
       background:
         linear-gradient(180deg, rgba(0,0,0,0.05), rgba(0,0,0,0.18)),
-        url("/blackmere-arg/assets/transitions/wechat-open.png") center / cover no-repeat;
+        url("assets/transitions/wechat-open.png") center / cover no-repeat;
       clip-path: circle(0 at var(--open-x, 50%) var(--open-y, 50%));
     }
 
@@ -472,6 +472,49 @@
       overflow: hidden;
     }
 
+    .chat-transition-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 180;
+      display: grid;
+      place-items: center;
+      background:
+        radial-gradient(circle at 50% 45%, rgba(16,181,90,0.16), transparent 12rem),
+        rgba(237,237,237,0.94);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.24s ease;
+    }
+
+    .chat-transition-overlay.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .transition-card {
+      min-width: 210px;
+      padding: 18px 20px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.92);
+      box-shadow: 0 14px 42px rgba(0,0,0,0.18);
+      text-align: center;
+      color: #20262c;
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .transition-dots {
+      margin-top: 10px;
+      color: var(--wechat);
+      letter-spacing: 0.2em;
+      animation: dotsBlink 0.75s steps(2, end) infinite;
+    }
+
+    @keyframes dotsBlink {
+      from { opacity: 0.35; }
+      to { opacity: 1; }
+    }
+
     .wechat-view,
     .chat-view {
       background: #ededed;
@@ -577,6 +620,7 @@
     .a1 { background: linear-gradient(145deg, #355c7d, #1b2b3d); }
     .a2 { background: linear-gradient(145deg, #c06c84, #6c2340); }
     .a3 { background: linear-gradient(145deg, #6c5b7b, #292033); }
+    .group-avatar { background: linear-gradient(145deg, #31b96d, #186744); font-size: 15px; }
     .news-avatar { background: linear-gradient(145deg, #23476b, #0f2235); }
 
     .chat-meta {
@@ -719,8 +763,9 @@
     .chat-view.possessed .chat-top,
     .chat-view.possessed .messages,
     .chat-view.possessed .input-bar {
-      background: #050505;
-      color: #d60000;
+      background: #020000;
+      color: #ff1010;
+      animation: possessedShake 0.08s infinite;
     }
 
     .chat-view.possessed .chat-top {
@@ -739,16 +784,37 @@
       padding: 28px;
       overflow: hidden;
       text-align: center;
+      position: relative;
+      background:
+        radial-gradient(circle at center, rgba(120,0,0,0.28), transparent 9rem),
+        repeating-linear-gradient(0deg, rgba(255,0,0,0.08) 0 1px, transparent 1px 6px),
+        #020000;
+    }
+
+    .chat-view.possessed .messages::before {
+      content: "我永远会在你身边 你永远都离不开我 我永远会在你身边 你永远都离不开我 我永远会在你身边 你永远都离不开我";
+      position: absolute;
+      inset: -20px;
+      color: rgba(255,0,0,0.18);
+      font-size: 18px;
+      font-weight: 900;
+      line-height: 1.45;
+      letter-spacing: 0.18em;
+      word-break: break-all;
+      text-align: left;
+      animation: possessedCrawl 0.18s steps(2, end) infinite;
     }
 
     .possessed-line {
-      color: #d60000;
-      font-size: 22px;
+      position: relative;
+      z-index: 2;
+      color: #fff0f0;
+      font-size: 24px;
       font-weight: 900;
       line-height: 1.7;
-      letter-spacing: 0.08em;
-      text-shadow: 0 0 14px rgba(214, 0, 0, 0.88);
-      animation: possessedPulse 0.9s infinite alternate;
+      letter-spacing: 0.12em;
+      text-shadow: 0 0 18px #ff0000, 2px 0 0 #760000, -2px 0 0 #220000;
+      animation: possessedPulse 0.42s infinite alternate;
     }
 
     .possessed-time {
@@ -771,8 +837,21 @@
     }
 
     @keyframes possessedPulse {
-      from { opacity: 0.74; transform: translateY(0); }
-      to { opacity: 1; transform: translateY(-2px); }
+      from { opacity: 0.62; transform: translate(-3px, 2px) scale(0.97); filter: blur(0); }
+      to { opacity: 1; transform: translate(3px, -2px) scale(1.05); filter: blur(0.6px); }
+    }
+
+    @keyframes possessedShake {
+      0% { transform: translate(0,0); }
+      25% { transform: translate(-3px, 2px); }
+      50% { transform: translate(3px, -2px); }
+      75% { transform: translate(-2px, -1px); }
+      100% { transform: translate(2px, 2px); }
+    }
+
+    @keyframes possessedCrawl {
+      from { transform: translateX(-8px); opacity: 0.42; }
+      to { transform: translateX(8px); opacity: 0.9; }
     }
 
     @keyframes messagePop {
@@ -826,6 +905,23 @@
       letter-spacing: 0.22em;
       text-shadow: 0 0 10px rgba(255,0,0,0.9);
       border: 1px solid rgba(255,0,0,0.36);
+    }
+
+    .quote-card {
+      margin-bottom: 6px;
+      padding: 5px 7px;
+      border-left: 3px solid rgba(0,0,0,0.22);
+      border-radius: 4px;
+      background: rgba(0,0,0,0.06);
+      color: rgba(0,0,0,0.48);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .message-row.other .quote-card {
+      border-left-color: rgba(45,95,186,0.38);
+      background: rgba(49,95,186,0.08);
+      color: #66727f;
     }
 
     .forum-link {
@@ -991,7 +1087,7 @@
       margin: 12px 0 20px;
       background:
         linear-gradient(180deg, rgba(0,0,0,0.05), rgba(0,0,0,0.36)),
-        url("/blackmere-arg/assets/article/castle-news.png") center / cover no-repeat;
+        url("assets/article/castle-news.png") center / cover no-repeat;
       position: relative;
       overflow: hidden;
       border: 1px solid #e2e2e2;
@@ -1235,54 +1331,54 @@
 
             <div class="apps" aria-label="应用列表">
               <button class="app" data-open="wechat">
-                <span class="app-icon wechat-icon"><img src="/blackmere-arg/assets/icons/wechat.png" alt="微信图标"></span>
+                <span class="app-icon wechat-icon"><img src="assets/icons/wechat.png" alt="微信图标"></span>
                 <span class="app-name">微信</span>
               </button>
               <button class="app locked" data-locked="true">
-                <span class="app-icon photo-icon"><img src="/blackmere-arg/assets/icons/album.webp" alt="相册图标"></span>
+                <span class="app-icon photo-icon"><img src="assets/icons/album.webp" alt="相册图标"></span>
                 <span class="app-name">相册</span>
               </button>
               <button class="app locked" data-locked="true">
-                <span class="app-icon map-icon"><img src="/blackmere-arg/assets/icons/map.png" alt="地图图标"></span>
+                <span class="app-icon map-icon"><img src="assets/icons/map.png" alt="地图图标"></span>
                 <span class="app-name">地图</span>
               </button>
               <button class="app locked" data-locked="true">
-                <span class="app-icon note-icon"><img src="/blackmere-arg/assets/icons/notes.png" alt="备忘录图标"></span>
+                <span class="app-icon note-icon"><img src="assets/icons/notes.png" alt="备忘录图标"></span>
                 <span class="app-name">备忘录</span>
               </button>
               <button class="app locked" data-locked="true">
-                <span class="app-icon music-icon"><img src="/blackmere-arg/assets/icons/music.jpeg" alt="音乐图标"></span>
+                <span class="app-icon music-icon"><img src="assets/icons/music.jpeg" alt="音乐图标"></span>
                 <span class="app-name">音乐</span>
               </button>
               <button class="app locked" data-locked="true">
-                <span class="app-icon camera-icon"><img src="/blackmere-arg/assets/icons/camera.png" alt="相机图标"></span>
+                <span class="app-icon camera-icon"><img src="assets/icons/camera.png" alt="相机图标"></span>
                 <span class="app-name">相机</span>
               </button>
               <button class="app locked" data-locked="true">
-                <span class="app-icon mail-icon"><img src="/blackmere-arg/assets/icons/mail.png" alt="邮箱图标"></span>
+                <span class="app-icon mail-icon"><img src="assets/icons/mail.png" alt="邮箱图标"></span>
                 <span class="app-name">邮箱</span>
               </button>
               <button class="app locked" data-locked="true">
-                <span class="app-icon browser-icon"><img src="/blackmere-arg/assets/icons/browser.webp" alt="浏览器图标"></span>
+                <span class="app-icon browser-icon"><img src="assets/icons/browser.webp" alt="浏览器图标"></span>
                 <span class="app-name">浏览器</span>
               </button>
             </div>
 
             <div class="dock">
               <button class="app locked" data-locked="true">
-                <span class="app-icon camera-icon"><img src="/blackmere-arg/assets/icons/phone.png" alt="电话图标"></span>
+                <span class="app-icon camera-icon"><img src="assets/icons/phone.png" alt="电话图标"></span>
                 <span class="app-name">电话</span>
               </button>
               <button class="app locked" data-locked="true">
-                <span class="app-icon note-icon"><img src="/blackmere-arg/assets/icons/sms.png" alt="短信图标"></span>
+                <span class="app-icon note-icon"><img src="assets/icons/sms.png" alt="短信图标"></span>
                 <span class="app-name">短信</span>
               </button>
               <button class="app locked" data-locked="true">
-                <span class="app-icon browser-icon"><img src="/blackmere-arg/assets/icons/settings.webp" alt="设置图标"></span>
+                <span class="app-icon browser-icon"><img src="assets/icons/settings.webp" alt="设置图标"></span>
                 <span class="app-name">设置</span>
               </button>
               <button class="app locked" data-locked="true">
-                <span class="app-icon photo-icon"><img src="/blackmere-arg/assets/icons/files.jpeg" alt="文件图标"></span>
+                <span class="app-icon photo-icon"><img src="assets/icons/files.jpeg" alt="文件图标"></span>
                 <span class="app-name">文件</span>
               </button>
             </div>
@@ -1333,6 +1429,42 @@
                   <span class="chat-time">21:48</span>
                 </span>
                 <span class="chat-preview">去你妈的！</span>
+              </span>
+              <span></span>
+            </button>
+
+            <button class="chat-item" data-group-locked="true">
+              <span class="avatar group-avatar">群</span>
+              <span class="chat-meta">
+                <span class="chat-name-row">
+                  <span class="chat-name">周末约饭小分队</span>
+                  <span class="chat-time">19:40</span>
+                </span>
+                <span class="chat-preview">明天谁有空？</span>
+              </span>
+              <span></span>
+            </button>
+
+            <button class="chat-item" data-group-locked="true">
+              <span class="avatar group-avatar">群</span>
+              <span class="chat-meta">
+                <span class="chat-name-row">
+                  <span class="chat-name">大学同学摸鱼群</span>
+                  <span class="chat-time">18:12</span>
+                </span>
+                <span class="chat-preview">有人打游戏吗</span>
+              </span>
+              <span></span>
+            </button>
+
+            <button class="chat-item" data-group-locked="true">
+              <span class="avatar group-avatar">群</span>
+              <span class="chat-meta">
+                <span class="chat-name-row">
+                  <span class="chat-name">视频账号素材讨论</span>
+                  <span class="chat-time">昨天</span>
+                </span>
+                <span class="chat-preview">下期标题再想想</span>
               </span>
               <span></span>
             </button>
@@ -1426,11 +1558,17 @@
             <p>这些传闻大多无法证实。古堡目前仍处于封闭状态，外围铁门和主楼入口均有警示标识。请勿擅自进入危险区域，更不要为了猎奇尝试翻越围栏。</p>
 
             <div class="article-note"></div>
-            <a id="mysteryArticleLink" class="mystery-link" href="/blackmere-arg/mystery-site.html" hidden>？？？</a>
+            <a id="mysteryArticleLink" class="mystery-link" href="mystery-site.html" hidden>？？？</a>
           </article>
         </section>
 
         <div id="toast" class="toast">暂时打不开。</div>
+        <div id="chatTransitionOverlay" class="chat-transition-overlay" aria-hidden="true">
+          <div class="transition-card">
+            <div id="chatTransitionText">正在切换聊天</div>
+            <div class="transition-dots">•••</div>
+          </div>
+        </div>
         <div id="computerConnectOverlay" class="computer-connect-overlay" aria-hidden="true">
           <div class="connect-box">
             <p class="connect-title">连接电脑中</p>
@@ -1453,7 +1591,7 @@
     </section>
   </main>
 
-  <audio id="wechatSound" src="/blackmere-arg/assets/sounds/wechat-message.mp3" preload="auto"></audio>
+  <audio id="wechatSound" src="assets/sounds/wechat-message.mp3" preload="auto"></audio>
 
   <script>
     const homeView = document.getElementById("homeView");
@@ -1477,6 +1615,8 @@
     const homeDate = document.getElementById("homeDate");
     const mysteryArticleLink = document.getElementById("mysteryArticleLink");
     const computerConnectOverlay = document.getElementById("computerConnectOverlay");
+    const chatTransitionOverlay = document.getElementById("chatTransitionOverlay");
+    const chatTransitionText = document.getElementById("chatTransitionText");
     const SU_PLAN_MESSAGE = "陈陌都跟我说了，不管怎么说我也是你女朋友，我要和你一起去。";
 
     const storyState = {
@@ -1487,9 +1627,11 @@
       suNewMessageAdded: false,
       chenChoiceStarted: false,
       chenChoiceDone: false,
+      chenFollowupChoiceDone: false,
       suChoiceStarted: false,
       suChoiceDone: false,
       possessionPlayed: false,
+      possessionPending: false,
       afterGlitchChoiceDone: false,
       postGlitchChoiceDone: false,
       chenForumSent: false,
@@ -1504,6 +1646,7 @@
       choiceMode: null,
       notificationAction: null,
       notificationTimer: null,
+      publicNoticeTimer: null,
       articleTimer: null
     };
 
@@ -1597,7 +1740,7 @@
     }
 
     function showView(view) {
-      if (storyState.isPossessed && view !== chatView) return;
+      if ((storyState.isPossessed || storyState.possessionPending) && view !== chatView) return;
       updateChatPreviews();
       [homeView, wechatView, chatView, articleView].forEach(v => v.classList.remove("active"));
       view.classList.add("active");
@@ -1671,7 +1814,9 @@
 
     function showNotification(config) {
       window.clearTimeout(storyState.notificationTimer);
-      playWechatSound();
+      if (!config.silent) {
+        playWechatSound();
+      }
       notificationIcon.textContent = config.icon || "微";
       notificationIcon.className = `notification-icon ${config.iconClass || ""}`;
       notificationTitle.textContent = config.title;
@@ -1689,6 +1834,31 @@
     function hideNotification() {
       notificationBanner.classList.remove("show");
       window.clearTimeout(storyState.notificationTimer);
+    }
+
+    function cancelPublicNoticeTimer() {
+      window.clearTimeout(storyState.publicNoticeTimer);
+      storyState.publicNoticeTimer = null;
+    }
+
+    function scrollMessagesToBottom(repeat = 4) {
+      requestAnimationFrame(() => {
+        messagesEl.scrollTop = messagesEl.scrollHeight;
+        if (repeat > 0) {
+          window.setTimeout(() => scrollMessagesToBottom(repeat - 1), 80);
+        }
+      });
+    }
+
+    function playChatTransition(text, callback) {
+      chatTransitionText.textContent = text;
+      chatTransitionOverlay.classList.add("show");
+      window.setTimeout(() => {
+        if (callback) callback();
+      }, 520);
+      window.setTimeout(() => {
+        chatTransitionOverlay.classList.remove("show");
+      }, 980);
     }
 
     function showToast(text) {
@@ -1745,7 +1915,14 @@
         if (isOldCorrupted) {
           bubble.classList.add("corrupted");
           bubble.textContent = "？？？";
-        } else if (meta && meta.linkUrl) {
+        } else {
+          if (meta && meta.quoteText) {
+            const quote = document.createElement("div");
+            quote.className = "quote-card";
+            quote.textContent = `我：${meta.quoteText}`;
+            bubble.appendChild(quote);
+          }
+          if (meta && meta.linkUrl) {
           const label = document.createElement("span");
           label.textContent = text;
           const link = document.createElement("a");
@@ -1757,7 +1934,10 @@
           bubble.appendChild(label);
           bubble.appendChild(link);
         } else {
-          bubble.textContent = text;
+            const textNode = document.createElement("span");
+            textNode.textContent = text;
+            bubble.appendChild(textNode);
+          }
         }
 
         row.appendChild(avatar);
@@ -1766,17 +1946,15 @@
       });
 
       showView(chatView);
-      requestAnimationFrame(() => {
-        messagesEl.scrollTop = messagesEl.scrollHeight;
-      });
+      scrollMessagesToBottom();
 
       restorePendingChoice(id);
 
-      checkPublicNoticeTrigger();
+      checkPublicNoticeTrigger(id);
       checkAfterForumMysteryUnlock();
     }
 
-    function checkPublicNoticeTrigger() {
+    function checkPublicNoticeTrigger(currentChatId) {
       const hasSeenMainChats = ["one", "two", "three"].every(id => storyState.seenChats.has(id));
       if (!hasSeenMainChats || storyState.publicNoticeShown) return;
       storyState.publicNoticeShown = true;
@@ -1787,7 +1965,9 @@
         return;
       }
 
-      window.setTimeout(() => {
+      cancelPublicNoticeTimer();
+      storyState.publicNoticeTimer = window.setTimeout(() => {
+        if (storyState.articleRead || storyState.suNoticeShown || articleView.classList.contains("active")) return;
         showNotification({
           icon: "闻",
           title: "本地旧闻",
@@ -1795,7 +1975,7 @@
           autoHide: false,
           onClick: openArticle
         });
-      }, 750);
+      }, 4500);
     }
 
     function setLocalNewsMystery() {
@@ -1831,6 +2011,7 @@
     }
 
     function openArticle() {
+      cancelPublicNoticeTimer();
       hideNotification();
       if (storyState.afterForumReturn) {
         corruptArticleText();
@@ -1867,6 +2048,7 @@
       if (storyState.afterForumReturn) return;
       if (storyState.suNoticeShown) return;
       storyState.suNoticeShown = true;
+      cancelPublicNoticeTimer();
 
       showNotification({
         icon: "苏",
@@ -1880,14 +2062,9 @@
 
     function handleSuNotice() {
       hideNotification();
-      if (!storyState.suNewMessageAdded) {
-        chats.three.messages.push(["time", "今天 22:08"]);
-        chats.three.messages.push(["other", SU_PLAN_MESSAGE]);
-        chats.three.listTime = "22:08";
-        storyState.suNewMessageAdded = true;
-        updateChatPreview("three");
-      }
+      ensureSuPlanMessage();
       renderChat("three");
+      scrollMessagesToBottom(7);
 
       window.setTimeout(() => {
         showView(wechatView);
@@ -1896,6 +2073,15 @@
       window.setTimeout(() => {
         startChenChoiceScene();
       }, 5300);
+    }
+
+    function ensureSuPlanMessage() {
+      if (storyState.suNewMessageAdded) return;
+      chats.three.messages.push(["time", "今天 22:08"]);
+      chats.three.messages.push(["other", SU_PLAN_MESSAGE]);
+      chats.three.listTime = "22:08";
+      storyState.suNewMessageAdded = true;
+      updateChatPreview("three");
     }
 
     function startChenChoiceScene() {
@@ -1923,7 +2109,9 @@
         btn.dataset.choice = text;
         btn.textContent = `${index + 1}. ${text}`;
         btn.addEventListener("click", () => {
-          if (storyState.choiceMode === "post-glitch") {
+          if (storyState.choiceMode === "chen-followup") {
+            completeChenFollowupChoiceScene(text);
+          } else if (storyState.choiceMode === "post-glitch") {
             completePostGlitchChoiceScene(text);
           } else if (storyState.choiceMode === "after-glitch") {
             completeAfterGlitchChoiceScene(text);
@@ -1937,10 +2125,11 @@
       });
       chatView.classList.add("choosing");
       replyChoices.classList.add("show");
+      scrollMessagesToBottom(5);
     }
 
     function getChoiceChatId(mode) {
-      return mode === "chen" ? "one" : "three";
+      return mode === "chen" || mode === "chen-followup" ? "one" : "three";
     }
 
     function restorePendingChoice(chatId) {
@@ -1961,7 +2150,11 @@
     function appendChatLine(chatId, who, text, options = {}) {
       const chat = chats[chatId];
       if (options.save !== false) {
-        chat.messages.push([who, text, options.linkUrl ? { linkUrl: options.linkUrl } : null]);
+        const meta = {};
+        if (options.linkUrl) meta.linkUrl = options.linkUrl;
+        if (options.quoteText) meta.quoteText = options.quoteText;
+        if (options.afterForumNew) meta.afterForumNew = true;
+        chat.messages.push([who, text, Object.keys(meta).length ? meta : null]);
         if (options.listTime) {
           chat.listTime = options.listTime;
         }
@@ -1987,6 +2180,12 @@
 
         const bubble = document.createElement("div");
         bubble.className = "bubble";
+        if (options.quoteText) {
+          const quote = document.createElement("div");
+          quote.className = "quote-card";
+          quote.textContent = `我：${options.quoteText}`;
+          bubble.appendChild(quote);
+        }
         if (options.linkUrl) {
           const label = document.createElement("span");
           label.textContent = text;
@@ -1999,7 +2198,9 @@
           bubble.appendChild(label);
           bubble.appendChild(link);
         } else {
-          bubble.textContent = text;
+          const textNode = document.createElement("span");
+          textNode.textContent = text;
+          bubble.appendChild(textNode);
         }
 
         row.appendChild(avatar);
@@ -2024,29 +2225,62 @@
         appendChatLine("one", "other", "没办法，嫂子一直在逼着我让我说。我不给他发消息就一直打电话，然后说什么要报警。我想这不能把事情闹大，所以就和他说了。", { listTime: "22:10" });
       }, 4500);
       window.setTimeout(() => {
-        appendChatLine("one", "me", "行吧行吧，你记得准备一下，明天我们就出发。", { listTime: "22:10" });
-      }, 5900);
+        showReplyChoices("chen-followup", [
+          "行吧行吧，你记得准备一下。还有你去看看能不能找到关于古堡的信息",
+          "。。。"
+        ]);
+      }, 5600);
+    }
+
+    function completeChenFollowupChoiceScene(choiceText) {
+      if (storyState.chenFollowupChoiceDone) return;
+      storyState.chenFollowupChoiceDone = true;
+      hideReplyChoices();
+
+      let quotedText = "";
+      if (choiceText === "。。。") {
+        appendChatLine("one", "me", "......", { listTime: "22:10" });
+        window.setTimeout(() => {
+          quotedText = "那你去找一下关于古堡的东西吧。";
+          appendChatLine("one", "me", quotedText, { listTime: "22:10" });
+        }, 650);
+      } else {
+        appendChatLine("one", "me", "行吧行吧，你记得准备一下。", { listTime: "22:10" });
+        window.setTimeout(() => {
+          quotedText = "还有你去看看能不能找到关于古堡的信息。";
+          appendChatLine("one", "me", quotedText, { listTime: "22:10" });
+        }, 650);
+      }
+
       window.setTimeout(() => {
-        startSuChoiceScene();
-      }, 6900);
+        chatTitle.textContent = "对方正在输入中...";
+      }, 1050);
+
+      window.setTimeout(() => {
+        chatTitle.textContent = "陈陌";
+        appendChatLine("one", "other", "OK", { listTime: "22:10", quoteText: quotedText || "还有你去看看能不能找到关于古堡的信息。" });
+      }, 2400);
+
+      window.setTimeout(() => {
+        showView(wechatView);
+        window.setTimeout(startSuChoiceScene, 850);
+      }, 3400);
     }
 
     function startSuChoiceScene() {
       if (storyState.suChoiceStarted) return;
       storyState.suChoiceStarted = true;
-      showView(wechatView);
-      window.setTimeout(() => {
-        renderChat("three", { hideSuPlanMessage: true });
-      }, 850);
-      window.setTimeout(() => {
-        appendChatLine("three", "other", SU_PLAN_MESSAGE, { save: false, pop: true, sound: false });
-      }, 1350);
+      ensureSuPlanMessage();
+      renderChat("three");
       window.setTimeout(() => {
         showReplyChoices("su", [
           "你别去了吧，那里真的很危险。",
           "行吧，不过你要准备好需要用的东西。"
         ]);
-      }, 4800);
+        requestAnimationFrame(() => {
+          scrollMessagesToBottom(6);
+        });
+      }, 700);
     }
 
     function completeSuChoiceScene(choiceText) {
@@ -2061,6 +2295,7 @@
 
       window.setTimeout(() => {
         appendChatLine("three", "other", suReply, { listTime: "22:10" });
+        storyState.possessionPending = true;
         window.setTimeout(playPossessionGlitch, 3600);
       }, 900);
     }
@@ -2079,10 +2314,15 @@
     }
 
     function playPossessionGlitch() {
-      if (storyState.possessionPlayed || !chatView.classList.contains("active")) return;
+      if (storyState.possessionPlayed) return;
       storyState.possessionPlayed = true;
+      storyState.possessionPending = false;
 
       const phrase = "我永远会在你身边，你永远都离不开我";
+
+      if (!chatView.classList.contains("active")) {
+        renderChat("three");
+      }
 
       flashScreen(() => {
         storyState.isPossessed = true;
@@ -2164,7 +2404,7 @@
       window.setTimeout(() => {
         appendChatLine("one", "other", "这个论坛里好像有人提过类似的事。或许对我们有点用。", {
           listTime: "22:13",
-          linkUrl: "/blackmere-arg/forum-loader.html"
+          linkUrl: "forum-loader.html"
         });
       }, 950);
     }
@@ -2214,6 +2454,10 @@
       btn.addEventListener("click", () => showToast("底部按钮没有反应。"));
     });
 
+    document.querySelectorAll("[data-group-locked='true']").forEach(btn => {
+      btn.addEventListener("click", () => showToast("这个群聊暂时打不开。"));
+    });
+
     document.querySelectorAll("[data-chat]").forEach(btn => {
       btn.addEventListener("click", () => renderChat(btn.dataset.chat));
     });
@@ -2233,6 +2477,10 @@
     });
 
     function returnToWechatFromChat() {
+      if (storyState.possessionPending || storyState.isPossessed) {
+        showToast("现在无法退出。");
+        return;
+      }
       if (storyState.afterForumReturn && storyState.afterForumChenOpened) {
         addAfterForumFollowups();
       }
@@ -2250,7 +2498,8 @@
     });
 
     function initAfterForumReturn() {
-      if (!new URLSearchParams(window.location.search).has("afterForum")) return;
+      const params = new URLSearchParams(window.location.search);
+      if (!params.has("afterForum")) return;
       storyState.afterForumReturn = true;
       homeTime.textContent = "？？？";
       bigTime.textContent = "？？？";
@@ -2258,7 +2507,11 @@
       document.querySelectorAll(".app-name").forEach(name => {
         name.textContent = "？？？";
       });
+      document.querySelectorAll("[data-group-locked='true'] .chat-name, [data-group-locked='true'] .chat-preview, [data-group-locked='true'] .chat-time").forEach(item => {
+        item.textContent = "？？？";
+      });
       chats.one.listTime = "？？？";
+      addAfterForumFollowups();
       storyState.publicNoticeShown = true;
       localNewsItem.hidden = true;
       mysteryArticleLink.hidden = true;
@@ -2271,6 +2524,7 @@
           title: "陈陌",
           text: "未读信息",
           autoHide: false,
+          silent: params.has("silentNotice"),
           onClick: () => {
             hideNotification();
             showView(wechatView);

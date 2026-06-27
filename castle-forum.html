@@ -908,7 +908,7 @@
     <div id="possessionWall" class="possession-wall"></div>
     <div class="possession-center">我会永远在你身边<br>你永远不会离开我</div>
   </div>
-  <audio id="forumWechatSound" src="/blackmere-arg/assets/sounds/wechat-message.mp3" preload="auto"></audio>
+  <audio id="forumWechatSound" src="assets/sounds/wechat-message.mp3" preload="auto"></audio>
 
   <script>
     const input = document.getElementById("searchInput");
@@ -925,6 +925,7 @@
     const possessionOverlay = document.getElementById("possessionOverlay");
     const possessionWall = document.getElementById("possessionWall");
     const forumWechatSound = document.getElementById("forumWechatSound");
+    const dmHead = document.querySelector(".dm-head");
 
     let dmStarted = false;
     let dmSequenceStarted = false;
@@ -1030,15 +1031,28 @@
 
       setTimeout(() => {
         document.body.classList.remove("forum-shake");
+        possessionOverlay.classList.remove("show");
+        dmHead.textContent = "私聊：？？？";
+        crumbText.textContent = "当前位置：旧城区论坛 > 私聊 > ？？？";
+        document.querySelectorAll(".msg").forEach(msg => {
+          msg.textContent = "？？？";
+        });
       }, 2600);
+
+      const bursts = ["？？？", "？？？？？", "？？？？？？？？", "？？？？？？？？？？？？", "？？？？？？？？？？？？？？？？？？"];
+      bursts.forEach((text, index) => {
+        setTimeout(() => {
+          addMsg(text, "other");
+        }, 4000 + index * Math.max(160, 620 - index * 110));
+      });
 
       setTimeout(() => {
         playForumWechatSound();
-      }, 1500);
+      }, 5750);
 
       setTimeout(() => {
-        window.location.href = "/blackmere-arg/arg-phone-prototype.html?afterForum=1";
-      }, 2700);
+        window.location.href = "arg-phone-prototype.html?afterForum=1&silentNotice=1";
+      }, 6100);
     }
 
     searchBtn.addEventListener("click", runSearch);
