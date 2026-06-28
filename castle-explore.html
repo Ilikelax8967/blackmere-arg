@@ -1,0 +1,1364 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blackmere Castle - Exploration</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0d0d0f;
+    color: #ccc;
+    font-family: "Microsoft YaHei", "PingFang SC", "Noto Sans SC", sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    line-height: 1.9;
+    font-size: 16px;
+  }
+
+  #game-container {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 40px 30px 60px;
+    min-height: 100vh;
+    position: relative;
+  }
+
+  /* Scene transitions */
+  .scene {
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+  .scene.active {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .scene.fading {
+    opacity: 0;
+    transform: translateY(-8px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+
+  /* Scene title */
+  .scene-title {
+    color: #fff;
+    font-size: 22px;
+    font-weight: bold;
+    margin-bottom: 24px;
+    letter-spacing: 2px;
+    border-left: 3px solid #666;
+    padding-left: 14px;
+  }
+
+  /* Narration */
+  .narration {
+    color: #999;
+    font-style: italic;
+    margin-bottom: 18px;
+    font-size: 15.5px;
+    text-indent: 2em;
+  }
+
+  .narration-normal {
+    color: #bbb;
+    margin-bottom: 18px;
+    font-size: 15.5px;
+    text-indent: 2em;
+  }
+
+  /* Dialogue */
+  .dialogue {
+    margin: 16px 0 16px 20px;
+    padding: 12px 18px;
+    border-left: 3px solid #666;
+    font-size: 15.5px;
+    position: relative;
+  }
+  .dialogue::before {
+    content: attr(data-speaker);
+    display: block;
+    font-size: 12px;
+    margin-bottom: 4px;
+    font-style: italic;
+  }
+
+  .dialogue-suoxiao { border-left-color: #9b59b6; color: #c8a2d8; }
+  .dialogue-suoxiao::before { color: #9b59b6; }
+
+  .dialogue-linwan { border-left-color: #e84393; color: #f0a0c4; }
+  .dialogue-linwan::before { color: #e84393; }
+
+  .dialogue-baixue { border-left-color: #a29bfe; color: #c8c4f8; }
+  .dialogue-baixue::before { color: #a29bfe; }
+
+  .dialogue-unknown { border-left-color: #d63031; color: #e88080; }
+  .dialogue-unknown::before { color: #d63031; }
+
+  .dialogue-chenmo { border-left-color: #636e72; color: #a0a0a0; }
+  .dialogue-chenmo::before { color: #636e72; }
+
+  .dialogue-system { border-left-color: #f39c12; color: #e0c080; }
+  .dialogue-system::before { color: #f39c12; }
+
+  /* Diary entry */
+  .diary-entry {
+    background: #111;
+    border: 1px solid #333;
+    border-radius: 4px;
+    padding: 18px 22px;
+    margin: 20px 0;
+    font-family: "KaiTi", "STKaiti", serif;
+    color: #b8a88a;
+    font-size: 15px;
+    line-height: 2;
+    position: relative;
+  }
+  .diary-entry::before {
+    content: attr(data-label);
+    display: block;
+    text-align: center;
+    color: #8a7a5a;
+    font-size: 13px;
+    margin-bottom: 12px;
+    letter-spacing: 4px;
+  }
+
+  /* Clue discovered */
+  .clue-discovered {
+    background: rgba(46, 204, 113, 0.08);
+    border: 1px solid rgba(46, 204, 113, 0.3);
+    border-radius: 4px;
+    padding: 12px 18px;
+    margin: 16px 0;
+    color: #5ddb92;
+    font-size: 14px;
+    animation: clueFlash 2s ease;
+  }
+  .clue-discovered::before {
+    content: "[ 获得线索 ] ";
+    font-weight: bold;
+  }
+
+  @keyframes clueFlash {
+    0% { background: rgba(46, 204, 113, 0.2); }
+    100% { background: rgba(46, 204, 113, 0.08); }
+  }
+
+  /* Sound effect text */
+  .sfx {
+    color: #666;
+    font-size: 13px;
+    letter-spacing: 3px;
+    text-align: center;
+    margin: 20px 0;
+    font-family: monospace;
+  }
+
+  /* Choices */
+  .choices-container {
+    margin-top: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .choice-btn {
+    background: transparent;
+    border: 1px solid #555;
+    color: #ddd;
+    padding: 14px 24px;
+    font-size: 15px;
+    cursor: pointer;
+    text-align: left;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    font-family: inherit;
+    letter-spacing: 0.5px;
+  }
+  .choice-btn:hover {
+    border-color: #9b59b6;
+    color: #fff;
+    background: rgba(155, 89, 182, 0.08);
+    padding-left: 30px;
+  }
+  .choice-btn:active {
+    background: rgba(155, 89, 182, 0.15);
+  }
+  .choice-btn.locked {
+    border-color: #333;
+    color: #555;
+    cursor: not-allowed;
+  }
+  .choice-btn.locked:hover {
+    border-color: #333;
+    color: #555;
+    background: transparent;
+    padding-left: 24px;
+  }
+
+  /* Clue panel */
+  #clue-panel-btn {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: rgba(20, 20, 20, 0.9);
+    border: 1px solid #444;
+    color: #aaa;
+    padding: 10px 18px;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 13px;
+    z-index: 100;
+    font-family: inherit;
+    transition: all 0.3s ease;
+  }
+  #clue-panel-btn:hover {
+    border-color: #888;
+    color: #fff;
+  }
+
+  #clue-panel {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.85);
+    z-index: 200;
+    overflow-y: auto;
+  }
+  #clue-panel.open { display: flex; justify-content: center; padding: 60px 20px; }
+  #clue-panel-inner {
+    max-width: 600px;
+    width: 100%;
+    background: #0a0a0a;
+    border: 1px solid #333;
+    border-radius: 6px;
+    padding: 30px;
+  }
+  #clue-panel h2 {
+    color: #fff;
+    font-size: 18px;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #333;
+  }
+  .clue-item {
+    padding: 12px 0;
+    border-bottom: 1px solid #1a1a1a;
+    color: #999;
+    font-size: 14px;
+  }
+  .clue-item:last-child { border-bottom: none; }
+  .clue-item .clue-name {
+    color: #5ddb92;
+    font-weight: bold;
+    margin-bottom: 4px;
+  }
+  #close-clue-panel {
+    margin-top: 20px;
+    background: transparent;
+    border: 1px solid #555;
+    color: #aaa;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 14px;
+    font-family: inherit;
+    border-radius: 4px;
+    transition: all 0.3s;
+  }
+  #close-clue-panel:hover { border-color: #888; color: #fff; }
+
+  /* Ending screen */
+  .ending-screen {
+    text-align: center;
+    padding-top: 20px;
+  }
+  .ending-screen .ending-title {
+    font-size: 26px;
+    color: #fff;
+    letter-spacing: 6px;
+    margin-bottom: 8px;
+  }
+  .ending-screen .ending-subtitle {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 30px;
+    letter-spacing: 2px;
+  }
+  .ending-screen .ending-text {
+    text-align: left;
+  }
+
+  /* Divider */
+  .divider {
+    border: none;
+    border-top: 1px solid #222;
+    margin: 24px 0;
+  }
+
+  /* Restart */
+  .restart-btn {
+    margin-top: 30px;
+    background: transparent;
+    border: 1px solid #555;
+    color: #aaa;
+    padding: 12px 30px;
+    cursor: pointer;
+    font-size: 14px;
+    font-family: inherit;
+    border-radius: 4px;
+    transition: all 0.3s;
+  }
+  .restart-btn:hover { border-color: #888; color: #fff; }
+
+  .return-link {
+    display: inline-block;
+    margin-top: 16px;
+    color: #666;
+    font-size: 13px;
+    text-decoration: none;
+    transition: color 0.3s;
+  }
+  .return-link:hover { color: #aaa; }
+
+  /* Hint text */
+  .hint-text {
+    color: #555;
+    font-size: 12px;
+    text-align: center;
+    margin-top: 8px;
+    font-style: italic;
+  }
+</style>
+</head>
+<body>
+
+<div id="game-container">
+  <div id="scene-display" class="scene active"></div>
+</div>
+
+<button id="clue-panel-btn" onclick="toggleCluePanel()">&#128270; 线索 (<span id="clue-count">0</span>)</button>
+
+<div id="clue-panel">
+  <div id="clue-panel-inner">
+    <h2>已收集线索</h2>
+    <div id="clue-list"></div>
+    <button id="close-clue-panel" onclick="toggleCluePanel()">关闭</button>
+  </div>
+</div>
+
+<script>
+// ========== Global State ==========
+var collectedClues = [];
+var cluePanelOpen = false;
+var visitedScenes = {};
+var totalSteps = 0;
+var MAX_STEPS_FOR_LOST = 60;
+
+// ========== Clue System ==========
+function hasClue(name) {
+  for (var i = 0; i < collectedClues.length; i++) {
+    if (collectedClues[i].name === name) return true;
+  }
+  return false;
+}
+
+function addClue(name, desc) {
+  if (hasClue(name)) return;
+  collectedClues.push({ name: name, desc: desc });
+  document.getElementById('clue-count').textContent = collectedClues.length;
+}
+
+function toggleCluePanel() {
+  cluePanelOpen = !cluePanelOpen;
+  var panel = document.getElementById('clue-panel');
+  if (cluePanelOpen) {
+    var listHtml = '';
+    if (collectedClues.length === 0) {
+      listHtml = '<div style="color:#555;text-align:center;padding:20px;">尚未发现任何线索。</div>';
+    } else {
+      for (var i = 0; i < collectedClues.length; i++) {
+        listHtml += '<div class="clue-item"><div class="clue-name">' + (i+1) + '. ' + collectedClues[i].name + '</div><div>' + collectedClues[i].desc + '</div></div>';
+      }
+    }
+    document.getElementById('clue-list').innerHTML = listHtml;
+    panel.classList.add('open');
+  } else {
+    panel.classList.remove('open');
+  }
+}
+
+// ========== Scene Rendering ==========
+function renderScene(sceneId) {
+  totalSteps++;
+  visitedScenes[sceneId] = true;
+
+  var container = document.getElementById('scene-display');
+  container.classList.add('fading');
+  container.classList.remove('active');
+
+  setTimeout(function() {
+    var html = buildSceneHTML(sceneId);
+    if (html === null) return;
+    container.innerHTML = html;
+    container.classList.remove('fading');
+    void container.offsetWidth;
+    container.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, 500);
+}
+
+function buildSceneHTML(sceneId) {
+  var s = scenes[sceneId];
+  if (!s) return '<p style="color:#666;text-align:center;margin-top:40vh;">[场景数据丢失]</p>';
+
+  var html = '';
+  if (s.isEnding) {
+    html += '<div class="ending-screen">';
+    html += '<div class="ending-title">' + (s.endingTitle || '') + '</div>';
+    html += '<div class="ending-subtitle">' + (s.endingSubtitle || '') + '</div>';
+    html += '<div class="ending-text">';
+  }
+
+  if (s.title) {
+    html += '<div class="scene-title">' + s.title + '</div>';
+  }
+
+  for (var i = 0; i < s.content.length; i++) {
+    var block = s.content[i];
+    if (block.type === 'narration') {
+      html += '<p class="narration">' + block.text + '</p>';
+    } else if (block.type === 'normal') {
+      html += '<p class="narration-normal">' + block.text + '</p>';
+    } else if (block.type === 'dialogue') {
+      html += '<div class="dialogue dialogue-' + block.cls + '" data-speaker="' + block.speaker + '">' + block.text + '</div>';
+    } else if (block.type === 'diary') {
+      html += '<div class="diary-entry" data-label="' + (block.label || '-- 日记摘录 --') + '">' + block.text + '</div>';
+    } else if (block.type === 'clue') {
+      html += '<div class="clue-discovered">' + block.text + '</div>';
+    } else if (block.type === 'divider') {
+      html += '<hr class="divider">';
+    } else if (block.type === 'sfx') {
+      html += '<div class="sfx">' + block.text + '</div>';
+    }
+  }
+
+  if (s.choices && s.choices.length > 0) {
+    html += '<div class="choices-container">';
+    for (var j = 0; j < s.choices.length; j++) {
+      var ch = s.choices[j];
+      var locked = ch.requireClue && !hasClue(ch.requireClue);
+      var cls = locked ? 'choice-btn locked' : 'choice-btn';
+      var onclick = locked ? '' : ' onclick="renderScene(\'' + ch.target + '\')"';
+      var extra = locked ? ' [需要线索: ' + ch.requireClue + ']' : '';
+      html += '<button class="' + cls + '"' + onclick + '>' + ch.text + extra + '</button>';
+    }
+    html += '</div>';
+    if (s.hint) {
+      html += '<div class="hint-text">' + s.hint + '</div>';
+    }
+  }
+
+  if (s.isEnding) {
+    html += '</div>';
+    html += '<div style="text-align:center">';
+    html += '<button class="restart-btn" onclick="restartGame()">重新开始</button>';
+    html += '<br><a class="return-link" href="mystery-site.html">返回神秘网站</a>';
+    html += '</div></div>';
+  }
+
+  return html;
+}
+
+function restartGame() {
+  collectedClues = [];
+  visitedScenes = {};
+  totalSteps = 0;
+  document.getElementById('clue-count').textContent = '0';
+  renderScene('entrance');
+}
+
+// ========== Scenes ==========
+var scenes = {};
+
+// ===================================================================
+// SCENE 1: ENTRANCE - The Castle Gate
+// ===================================================================
+scenes['entrance'] = {
+  title: '古堡大门',
+  content: [
+    { type: 'sfx', text: '-- [风声: 呼啸的寒风穿过铁门的缝隙] --' },
+    { type: 'normal', text: '你站在一座古堡的大门前。' },
+    { type: 'narration', text: '铁门半开着，锈迹斑斑的铰链发出令人牙酸的声响。门柱上的石狮子缺了一只头，另一只的眼睛是空的，像两个黑色的窟窿在盯着你。月亮被厚重的云层遮住了，只有偶尔的闪电能照亮古堡的全貌——一座灰黑色的庞然大物，窗户大多碎了，黑洞洞的窗口像无数张张开的嘴。' },
+    { type: 'normal', text: '你是从那个网站上点进来的。那个"进入古堡"的按钮。你以为这只是某种网页特效，或者一个恐怖解谜游戏的入口。但现在，你能感觉到脚下的碎石路是真实的，空气里的寒意是真实的，风刮过你面颊时那种刺痛感也是真实的。' },
+    { type: 'narration', text: '你不记得自己是怎么到这里来的。手机还在口袋里，你掏出来看了一眼——没有信号，时间是23:47。屏幕上还停留在那个网站，"进入古堡"按钮变成了灰色，上面多了一行小字："您已进入。祝您好运。"' },
+    { type: 'normal', text: '你把手机塞回口袋。铁门的那一边，古堡内部隐约透出一丝光。不是电灯的光——更像是烛火。' },
+    { type: 'narration', text: '风又吹过来了。这一次，你隐约听到了风声里夹杂着什么——不是自然的声音。像是有人在很远的地方叫你的名字。但太远了，远到也许只是你的幻觉。' }
+  ],
+  choices: [
+    { text: '推开铁门，走进古堡', target: 'foyer' },
+    { text: '先在门口观察一会儿', target: 'entrance_look' },
+    { text: '转身离开——这地方不对劲', target: 'entrance_leave' }
+  ]
+};
+
+// ===================================================================
+// SCENE 1B: Entrance - Look around
+// ===================================================================
+scenes['entrance_look'] = {
+  title: '古堡大门前',
+  content: [
+    { type: 'normal', text: '你没有急着进去。你蹲下来，借着手电筒的光看了看铁门附近的地面。' },
+    { type: 'narration', text: '地面上有车辙印。是很新的，轮胎纹路清晰。有人最近开车来过这里——或者是被带到这里。车辙延伸到古堡右侧的某个方向消失了，你跟着照过去，发现了一辆黑色的轿车停在灌木丛后面。车灯灭了，引擎盖还是温热的。' },
+    { type: 'normal', text: '你拉开了驾驶座的车门——空的。副驾驶也空的。但后座上有一个帆布包，拉链半开着。你往里看了看：一瓶矿泉水（喝了一半）、一个充电宝、一叠打印出来的A4纸。' },
+    { type: 'narration', text: '你抽出那叠A4纸。上面是一份打印的聊天记录——手机截屏。你看了看内容，心跳加速了。' },
+    { type: 'normal', text: '聊天记录的两个人，一个备注名叫"阿榕"，另一个没有备注，只有一串号码。对话内容是——' },
+    { type: 'dialogue', cls: 'system', speaker: '[聊天记录]', text: '阿榕: 你确定要一个人去？那个地方我查过了，很不正常。\n没有备注: 我必须去。陈陌在那里面。我收到他最后一条消息之后就再也没了。\n阿榕: 万一他在骗你呢？\n没有备注: 他不会骗我。你认识他多久了？\n阿榕: ……三年。\n没有备注: 那你应该知道，他宁可死也不会骗我。' },
+    { type: 'narration', text: '聊天记录到这里就断了。没有备注的那个人，从语气和用词来看，像是一个女性。而她提到了陈陌——' },
+    { type: 'normal', text: '你把A4纸塞回帆布包。林晚。这辆车应该是林晚的。她来过这里，但她现在不在车里。' },
+    { type: 'clue', text: '林晚的车——古堡外停着一辆黑色轿车，后座有林晚的帆布包和聊天记录，证明她确实来过古堡。聊天记录显示她是为了找陈陌才来的。' },
+    { type: 'narration', text: '铁门那边，烛火的光更亮了一些。像是在催促你。' }
+  ],
+  choices: [
+    { text: '推门进入古堡', target: 'foyer' },
+    { text: '绕着古堡外围走走看看有没有别的入口', target: 'entrance_side' }
+  ]
+};
+
+// ===================================================================
+// SCENE 1C: Entrance - Side exploration
+// ===================================================================
+scenes['entrance_side'] = {
+  title: '古堡外围',
+  content: [
+    { type: 'normal', text: '你沿着古堡的外墙走了一圈。古堡比你想象的要大得多，几乎占了半个山头。北侧的墙壁上有一排被木板封住的窗户，东面是一座坍塌了一半的温室，玻璃碎片在月光下闪闪发亮。' },
+    { type: 'narration', text: '你转到古堡的南面时，脚下一软——地面塌了一块，露出下面的空洞。你赶紧后退了两步，用手电筒往里面照了照。' },
+    { type: 'normal', text: '是一个废弃的通风管道，直径大约半米，从古堡的地基下面延伸出去。管道内壁长满了青苔和霉菌，空气里弥漫着一股潮湿的泥土味。最深处隐约有微弱的光——不是外面的光，是从古堡内部透出来的。' },
+    { type: 'narration', text: '这个管道太窄了，你不确定能不能爬得进去。但如果你想的话，这倒是一条……备用的路。' },
+    { type: 'clue', text: '通风管道——古堡南侧地面下有一条废弃的通风管道，连接古堡内部。管道很窄，可以作为紧急出口。' }
+  ],
+  choices: [
+    { text: '记住这条路，还是从正门进去吧', target: 'foyer' },
+    { text: '试试能不能从管道爬进去', target: 'foyer_via_pipe' }
+  ]
+};
+
+// ===================================================================
+// SCENE 1D: Entrance - Try to leave
+// ===================================================================
+scenes['entrance_leave'] = {
+  title: '',
+  content: [
+    { type: 'normal', text: '你转身准备离开。你走了大概十步——' },
+    { type: 'sfx', text: '-- [铁门发出一声尖锐的金属摩擦声] --' },
+    { type: 'narration', text: '你回头看了一眼。铁门正在缓缓合上。但没有人推它。你加速往前跑，又跑了二十步、三十步——你发现不对。来时的碎石路消失了。你脚下变成了柔软的草地，然后是泥土，然后是沙子。你不知道自己什么时候偏离了路。' },
+    { type: 'normal', text: '你停下脚步。四周一片漆黑，什么也看不见。你打开手电筒——光照不到任何有意义的东西，只有无尽的黑暗。' },
+    { type: 'dialogue', cls: 'unknown', speaker: '???', text: '"你已经进来了。进来了就出不去。"' },
+    { type: 'narration', text: '声音从你身后传来。你猛地转过身——手电筒的光照在铁门上。铁门又半开着了，烛火的光从门缝里流出来。你不知道自己是怎么又回到了这里。' },
+    { type: 'normal', text: '你的口袋里的手机震了一下。你掏出来看——屏幕上只有一行字："不要浪费时间。她还在等你。"' },
+    { type: 'narration', text: '你盯着那行字看了很久。然后你把手机收起来，推开了铁门。' }
+  ],
+  choices: [
+    { text: '进入古堡', target: 'foyer' }
+  ]
+};
+
+// ===================================================================
+// SCENE 2: FOYER - The Grand Hall
+// ===================================================================
+scenes['foyer'] = {
+  title: '前厅',
+  content: [
+    { type: 'sfx', text: '-- [音效: 脚步声在空旷的大厅中回响] --' },
+    { type: 'normal', text: '你走进古堡的大门。铁门在你身后缓缓合上，发出一声沉闷的"咔嗒"。你试着推了推——推不动了。' },
+    { type: 'narration', text: '前厅比外面看起来大得多。高耸的穹顶消失在黑暗中，你仰头看去，什么也看不到——天花板要么太黑了，要么太高了，手电筒的光根本照不到。大厅中央有一个旋转楼梯，铁质的，螺旋着向上延伸，同样消失在黑暗里。楼梯的扶手上缠满了干枯的藤蔓和蛛网。' },
+    { type: 'normal', text: '地面上积了厚厚一层灰尘，你的每一步都在灰尘上留下清晰的脚印。墙壁上有烛台——有些烛台上的蜡烛还在燃烧。火焰很小，但很稳定，不会熄灭。你不知道是什么让它们维持了这么久。' },
+    { type: 'narration', text: '大厅的东侧有一条走廊，走廊的入口上方有一个石雕，是某种长着翅膀的生物——天使还是蝙蝠，你分辨不出来，因为石雕的头部已经被打掉了。西侧是旋转楼梯的底部，楼梯上方挂着两盏铁制吊灯，其中一盏还在微微发光，像是一只快要死掉的眼睛。' },
+    { type: 'normal', text: '你注意到大厅正面的墙壁上有一面巨大的镜子。镜面蒙着灰尘，但透过灰尘，你依稀能看到自己的倒影——扭曲的、模糊的。镜框是紫檀木的，雕刻着精细的花纹。你本能地不想去碰它。' },
+    { type: 'narration', text: '除此之外，前厅里没有家具，没有装饰，只有空旷、灰尘和那些永远不会熄灭的蜡烛。安静得你能听到自己的心跳。' },
+    { type: 'clue', text: '不灭的蜡烛——前厅墙壁上的蜡烛在没有人的情况下持续燃烧，暗示古堡中有某种超自然力量维持运作。' }
+  ],
+  choices: [
+    { text: '走向东侧走廊', target: 'east_corridor' },
+    { text: '沿旋转楼梯上二楼', target: 'second_floor' },
+    { text: '在一楼大厅继续探索', target: 'ground_floor' },
+    { type: 'divider' },
+    { type: 'normal', text: '大厅正面那面镜子，你想不想……' },
+    { type: 'normal', text: '不，还是先别碰它。' }
+  ]
+};
+
+// ===================================================================
+// SCENE 2B: Foyer - Came through pipe
+// ===================================================================
+scenes['foyer_via_pipe'] = {
+  title: '前厅（地下通道入口）',
+  content: [
+    { type: 'normal', text: '你缩着身体爬进了通风管道。管道比你预想的要长，你匍匐前进了好几分钟，膝盖和手肘都在粗糙的铁皮上磨疼了。空气越来越潮湿，越来越冷。' },
+    { type: 'narration', text: '终于，管道前方出现了一个出口。你从出口翻出来，发现自己身处古堡的一楼——一个狭小的房间，看起来像是某种设备间。管道系统、老旧的阀门、生锈的管道交错在头顶。有一扇门连接着外面。' },
+    { type: 'normal', text: '你推开那扇门，来到了前厅。巨大的穹顶、旋转楼梯、不灭的烛火——和从正门进来应该看到的是一样的。但你现在多知道了一件事：有一条路可以通向古堡外面。虽然那条路又窄又脏，但它是存在的。' },
+    { type: 'clue', text: '地下通道——你通过通风管道进入了古堡，确认有一条从古堡内部通向外部的地下路径。这可能成为逃离的路线。' }
+  ],
+  choices: [
+    { text: '走向东侧走廊', target: 'east_corridor' },
+    { text: '沿旋转楼梯上二楼', target: 'second_floor' },
+    { text: '在一楼大厅继续探索', target: 'ground_floor' }
+  ]
+};
+
+// ===================================================================
+// SCENE 3: GROUND FLOOR - Corridor exploration
+// ===================================================================
+scenes['ground_floor'] = {
+  title: '一楼走廊',
+  content: [
+    { type: 'normal', text: '你没有急着上楼，也没有进东侧走廊。你决定先在这一楼仔细看看。' },
+    { type: 'narration', text: '前厅的北侧有一条短走廊，你之前没注意到。走过去一看，是一条细长的通道，两侧各有很多扇木门。你数了数——左边四扇，右边四扇，走廊尽头还有一扇比较大的门。一共九扇门。大部分门都关着，只有右侧第二扇门半开着。' },
+    { type: 'normal', text: '你推开半开的那扇门，里面是一个储藏室。落满灰尘的架子上堆着各种杂物：旧报纸、生锈的工具、几箱过期的罐头。报纸的日期跨度很大——最新的一张是2024年的本地晚报，最旧的一张你只看清了年份：1983。' },
+    { type: 'narration', text: '你翻了翻报纸。2024年那张晚报的标题是："城郊古堡列入文物保护名单，禁止私自进入"。报道里提到古堡的历史——建于清末，最初是某个富商的私人别墅，后来几经转手，最后一任主人是1940年代迁入的Blackmere家族。报道说Blackmere家族在1950年代突然销声匿迹，古堡从此废弃。' },
+    { type: 'clue', text: '古堡历史——Blackmere家族1940年代迁入，1950年代突然消失。古堡现在是文物保护单位。' },
+    { type: 'normal', text: '你继续往走廊尽头走去。尽头那扇大门比其他门都厚重，门板上嵌着铁钉。你用力推了一下——纹丝不动。门上了锁。' },
+    { type: 'narration', text: '但你注意到门缝下面有一丝光透出来。非常微弱，像是从很深的地下反射上来的。这门后面可能是通往地下室的入口。' }
+  ],
+  choices: [
+    { text: '回到前厅，去东侧走廊', target: 'east_corridor' },
+    { text: '回到前厅，上二楼', target: 'second_floor' },
+    { text: '找找有没有能打开这扇门的方法', target: 'basement_discovery' }
+  ]
+};
+
+// ===================================================================
+// SCENE 3B: Basement discovery - hidden door
+// ===================================================================
+scenes['basement_discovery'] = {
+  title: '一楼走廊尽头',
+  content: [
+    { type: 'normal', text: '你没有放弃。你回到走廊中间，推开了一扇又一扇门，每扇门后面都是不同的房间——有的是空的，有的堆着杂物，有一间看起来像是厨房，灶台上还残留着早已干涸的黑色痕迹。' },
+    { type: 'narration', text: '你在左侧第三间房间里发现了有意思的东西。这是一个小书房，或者说更像是一个杂物间，墙角有一个老旧的木柜。你打开木柜——里面有几瓶红酒（早就过了保质期）、两本旧相册，还有一把黄铜钥匙。' },
+    { type: 'normal', text: '钥匙很旧了，但保存得很好。你拿起来看了看——钥匙柄上刻着一个小小的"B"字，钥匙的齿形比较复杂。你试着回忆走廊尽头那扇门的锁孔——也许能对得上。' },
+    { type: 'clue', text: '黄铜钥匙——一楼左侧第三间房间发现的旧钥匙，钥匙柄上刻着"B"，可能是Blackmere家族的钥匙，能打开某扇锁着的门。' },
+    { type: 'sfx', text: '-- [音效: 远处传来轻微的脚步声，又迅速消失] --' },
+    { type: 'narration', text: '你猛地抬起头。走廊里空无一人。烛火微微晃动了一下，然后恢复了平静。也许只是风吹过通风管道的声音。也许不是。' }
+  ],
+  choices: [
+    { text: '用钥匙试试走廊尽头那扇门', target: 'basement_entrance' },
+    { text: '先去别的地方看看，钥匙留着以后用', target: 'foyer' }
+  ]
+};
+
+// ===================================================================
+// SCENE 4: EAST CORRIDOR
+// ===================================================================
+scenes['east_corridor'] = {
+  title: '东侧走廊',
+  content: [
+    { type: 'sfx', text: '-- [音效: 你的脚步声在走廊中回荡，比实际的声音大了很多] --' },
+    { type: 'normal', text: '东侧走廊比前厅冷得多。走廊两侧的墙壁上挂满了油画——大的、小的、横的、竖的。画的风格各异，有些看起来很古老，有些又明显是近现代的作品。但所有画有一个共同点：画中都有人物。' },
+    { type: 'narration', text: '你停下脚步，仔细看了一幅离你最近的油画。画的是一个穿着民国时期旗袍的年轻女人，半侧着脸，表情像是在出神地想着什么。画框的右下角有一行小字："林淑芬，1951"。' },
+    { type: 'normal', text: '你看了看另一幅：一个穿中山装的中年男人，表情严肃，背景是这座古堡的某个房间。签名写着"周祁 1949"。' },
+    { type: 'narration', text: '第三幅是一幅让你心跳加速的画——一个穿着现代衣服的年轻男人，卫衣、牛仔裤、运动鞋，站在一扇门前，表情是困惑的。他看起来就像是一个刚走进来不知道该往哪走的人。' },
+    { type: 'normal', text: '你盯着这幅画看了很久。画中的人……和陈陌发给你照片里的样子非常像。不，不是"像"——几乎就是同一个人。但陈陌是2026年的人，而如果这幅画是真的，它至少有几十年的历史了。' },
+    { type: 'clue', text: '走廊油画——东侧走廊挂满人物油画，包括林淑芬(1951)、周祁(1949)，以及一幅疑似陈陌的现代装束画像。画中人物的年代和服装存在矛盾。' },
+    { type: 'sfx', text: '-- [音效: 走廊深处传来一声轻笑，像是有人在嘲笑你] --' },
+    { type: 'narration', text: '你打了个寒战。也许是风。也许是管道的声音。也许什么都不是。你加快了脚步。' }
+  ],
+  choices: [
+    { text: '继续往走廊深处走', target: 'east_studio' },
+    { text: '回去，去前厅上二楼', target: 'second_floor' },
+    { text: '回去，在一楼大厅找更多线索', target: 'ground_floor' }
+  ]
+};
+
+// ===================================================================
+// SCENE 5: EAST STUDIO
+// ===================================================================
+scenes['east_studio'] = {
+  title: '画室',
+  content: [
+    { type: 'normal', text: '走廊的尽头是一扇双开门，木质的，门板上有精细的浮雕。你推开门——' },
+    { type: 'narration', text: '是一间画室。不大，但处处透着一种被精心维护过的痕迹。房间里有一股浓烈的松节油和旧颜料的味道，这种味道让你想起小时候去过的那个美术老师的工作室。画架上立着一幅未完成的油画，画架旁边的桌子上整齐地摆放着调色盘、画笔和颜料管。' },
+    { type: 'normal', text: '你走到画架前。画布上是一个女人的半身像——白色衣服，长发垂落，姿态优雅。面部的轮廓已经成型了，五官的位置也用浅色颜料标注出来了。但五官本身没有画——特别是眼睛的位置，只铺了一层底色的白。空白的眼睛凝视着前方，看起来既诡异又悲伤。' },
+    { type: 'narration', text: '你伸手摸了摸画布旁边的调色盘。' },
+    { type: 'normal', text: '颜料是湿的。' },
+    { type: 'narration', text: '你猛地把手缩了回来。这幅画——如果它真的是几十年前开始的——颜料不可能还是湿的。除非有人一直在画它。除非"一直"指的是直到今天。' },
+    { type: 'normal', text: '你强迫自己冷静下来，把注意力转向桌子。桌上有两样东西引起了你的注意：一本深棕色皮面日记本，以及一封信。' }
+  ],
+  choices: [
+    { text: '翻开日记本', target: 'studio_diary' },
+    { text: '先读那封信', target: 'studio_letter' },
+    { text: '仔细看画架上那幅画', target: 'studio_painting' },
+    { text: '离开画室', target: 'foyer' }
+  ]
+};
+
+// ===================================================================
+// SCENE 5B: Studio - The Painting
+// ===================================================================
+scenes['studio_painting'] = {
+  title: '画架前',
+  content: [
+    { type: 'normal', text: '你站在画架前，仔细审视这幅未完成的画。' },
+    { type: 'narration', text: '画中的女人穿着一件白色的长裙，面料看起来很轻薄，像是薄纱或者丝绸。长发披散在肩上，发丝的笔触非常细腻，几乎可以看出每一根头发的走向。她的姿态是微微侧身的，像是在回头看你，但她的眼睛——眼睛的位置只有空白的白颜料。' },
+    { type: 'normal', text: '你注意到画布右下角有一行小字，用很细的笔触写的，你不凑近根本看不清——' },
+    { type: 'dialogue', cls: 'baixue', speaker: '[画上的字]', text: '"等一个人来为我画完。白。"' },
+    { type: 'narration', text: '"白"。白雪。' },
+    { type: 'normal', text: '你后退一步，重新审视整幅画。白色衣服的女人、空白的眼睛、"白"的签名。这幅画就是白雪的自画像——或者说，是她让别人来完成的自己的画像。她画好了身体的轮廓，留住了五官的位置，但唯独画不了自己的脸。' },
+    { type: 'narration', text: '你想起小时候看过的一个故事——一个画家画不出自己的肖像，因为没有人能在画自己的时候看到真实的自己。但白雪不只是"画不出"——她在等。等一个特定的人来替她画完。' },
+    { type: 'clue', text: '未完成的肖像——画架上有一幅白雪的自画像，身体已完成但五官（特别是眼睛）空白。署名"白"。这幅画需要另一个人来完成。' }
+  ],
+  choices: [
+    { text: '翻开桌上的日记本', target: 'studio_diary' },
+    { text: '读桌上的信', target: 'studio_letter' },
+    { text: '离开画室', target: 'foyer' }
+  ]
+};
+
+// ===================================================================
+// SCENE 5C: Studio - The Letter
+// ===================================================================
+scenes['studio_letter'] = {
+  title: '画室 - 信件',
+  content: [
+    { type: 'normal', text: '你拿起那封信。信封没有封口，里面的信纸折了两折。纸张泛黄，但保存得很好。' },
+    { type: 'narration', text: '你展开信纸。字迹工整纤细，像是用钢笔写的。' },
+    { type: 'diary', text: '致后来的人：\n\n如果你正在读这封信，说明你已经走到了这里。说明你已经看到了那些画，看到了那些名字，看到了这幅永远不会自己完成的画。\n\n我叫白雪。或者，曾经叫这个名字。现在我已经不确定自己还有没有名字了。\n\n我不会在信里解释一切——因为这不是一封信能做到的。但我需要你知道一件事：这座古堡里的人，不是活着的人。他们被困在画里了。每一个人，每一幅画。包括我自己。\n\n但和你不一样的是，我选择了这个命运。他们中有些人没有。\n\n如果你在画室里看到了这本信旁边的日记，读它。全部读完。然后自己做决定。\n\n—— B\n1952年 冬', label: "-- 一封未寄出的信 --" },
+    { type: 'narration', text: '你把信放回桌上。这封信的语气很平静，平静得让人不安。写信的人在陈述事实——就像在说"今天天气不错"一样说着"人被困在画里了"。' },
+    { type: 'clue', text: '白雪的信——白雪在信中承认古堡中的人都被困在画里，称自己也是其中之一，但声称自己是"选择"了这个命运。她建议后来者阅读日记。' }
+  ],
+  choices: [
+    { text: '翻开日记本', target: 'studio_diary' },
+    { text: '离开画室', target: 'foyer' }
+  ]
+};
+
+// ===================================================================
+// SCENE 5D: Studio - Diary (CRITICAL STORY)
+// ===================================================================
+scenes['studio_diary'] = {
+  title: '白雪的日记',
+  content: [
+    { type: 'normal', text: '你坐下来，翻开了那本日记。封面的皮革已经开裂了，但你翻到第一页时，纸张保存得出奇地好。' },
+    { type: 'narration', text: '日记从1949年开始。字迹变化很大——早期的字迹工整而纤细，越到后面越急促，像是在赶着写。' },
+    { type: 'diary', text: '1949年 秋。\n\n周祁带我来的。他说这座古堡是他的家族祖产。他问我愿不愿意在这里画画——他为我准备了一间画室。我答应了。\n\n我不知道那时候他就已经知道了。知道了"永生之画"的秘密。', label: "-- 日记 第一篇 --" },
+    { type: 'diary', text: '1949年 冬。\n\n周祁给了我一本古书。很旧了，纸页发脆，像是手抄的。书里记载了一种古老的绘画方法——把一个人的灵魂固定在画布上。具体做法是：画师在画布上画下那个人的肖像，使用特定的颜料配方。当肖像完成的那一刻，被画的人会失去意识，而他们的灵魂会进入画中。\n\n画中的人不会老、不会死。他们会永远留在那里。\n\n我以为这是胡说八道。但周祁说，他可以证明。', label: "-- 日记 第二篇 --" },
+    { type: 'diary', text: '1950年 春。\n\n他证明了。\n\n画的是他的管家老张。一个六十多岁的老人，身体越来越差，自己说活不过年底了。老张自愿的。他说如果能在画里永生，总比在土里烂掉好。\n\n我画了他。用了整整三天。第三天晚上，我画完了最后一笔——他的眼睛。\n\n老张就那样倒在了椅子上。像是睡着了。我摸了摸他的脉搏——没有。\n\n但画布上的老张睁开了眼睛。他看着我，笑了。嘴唇动了动，但说不出声音。\n\n我没有尖叫。也许是因为太震惊了，反而叫不出来。周祁站在旁边，很平静。他说："这就是永生。"', label: "-- 日记 第三篇 --" },
+    { type: 'diary', text: '1950年 秋。\n\n我已经画了很多人了。周祁的朋友、他的商业伙伴、甚至他的弟弟。他们来了，坐在我的画架前，我画他们。画完之后，他们就不动了。\n\n周祁告诉他们这是"永生"。他告诉他们画里才是永恒的乐园。他们都信了。或者说，他们假装信了，因为他们没有别的选择。\n\n林淑芬不信。她是周祁的妻子。她来找我的时候脸都是白的，说周祁变了，说他把所有人都"处理"掉了，说下一个就轮到她了。\n\n我什么也没说。因为我正在画她。', label: "-- 日记 第四篇 --" },
+    { type: 'diary', text: '1951年 夏。\n\n林淑芬的画完成了。画中的她很美，比活着的时候更美。但她的表情是恐惧的——她被画进去的那一刻意识到了正在发生什么，但来不及了。\n\n那天晚上我哭了很久。周祁不理解我为什么要哭。他说他们都去了更好的地方。我说画里算什么更好的地方。他说，至少他们还在。\n\n"至少他们还在"——这句话后来我想了很多年。', label: "-- 日记 第五篇 --" },
+    { type: 'diary', text: '1952年 冬。\n\n周祁死了。不是被我画的——是他自己要求的。他说他想进画里陪我。他说他不想让我一个人。七十年的寿命他嫌太短了。\n\n我画了他。他微笑着闭上了眼睛。他的画是我所有作品里最好的。', label: "-- 日记 第六篇 --" },
+    { type: 'diary', text: '1952年 冬（续）。\n\n画完周祁之后，我意识到一件事：我也被困住了。\n\n我试过画自己。三次。每一次画到一半画布就会燃烧起来——不是普通的火，是蓝色的，从颜料本身烧起来的。自画像是禁忌。规则不允许。\n\n我需要另一个人来替我画。但这个世界上，还有谁会来这座荒废的古堡呢？\n\n周祁说会有人的。他说得那么笃定，像是在预言什么。我问他为什么这么确定。他只是笑了笑。\n\n我现在明白了他为什么笑。他知道我有很多时间来等。\n\n但七十七年还是很长。长得我不知道自己还是不是"活着"。', label: "-- 日记 第七篇 --" },
+    { type: 'divider' },
+    { type: 'normal', text: '你快速翻到最后几页。纸张变新了，日期间隔变短。字迹也开始变化——从工整到急促，再到……颤抖。' },
+    { type: 'diary', text: '2026年 6月。\n\n终于。七十七年后，终于有人要来了。\n\n是周祁安排的——不，是周祁在七十七年前安排的。他留下了一些东西，一些能让后来的时代找到这座古堡的东西。那个网站、那些文件、那些刻意留下的线索——都是他的遗产。他说过，"时间会带来画家"。\n\n来了三个人。陈陌、林晚、还有一个……苏晓。\n\n陈陌最合适。他有绘画天赋——周祁选中的人都有艺术天赋。他会成为我的画师。\n\n但陈陌很聪明。他到了B区之后就开始怀疑了。他检查了那些画，翻了那些旧书。我不得不加快速度。在22:10，我把他的灵魂固定在了画布上。他挣扎了一下，但很快就不动了。\n\n他的表情是困惑的。始终是困惑的。我画了那个表情，因为那是真的。\n\n他死前看了一眼画架上我的自画像。那双空白的眼睛。他好像明白了什么。\n\n但这不重要了。重要的是，我需要处理苏晓。', label: "-- 日记 最后一篇 --" },
+    { type: 'diary', text: '苏晓的身体很好。我在来古堡的路上就完成了附身。她的灵魂很弱——不，不是弱，是太天真了。她根本没有意识到自己已经不是自己了。\n\n我用苏晓的手机给陈陌发了消息。每一条都是精心设计的。"你来了吗"、"他了解的比你想象的多"……每一条都在引导他深入，让他的恐惧和好奇同时上升，让他在正确的时间到达正确的地方。\n\n但苏晓的脸和声音还是不够。我需要的是你——那个会画画的人。苏晓只是一个工具，一个让你来到这里的理由。\n\n现在你在读这篇日记。这说明你已经知道了真相。很好。\n\n来找我。在三楼。最里面的那个房间。\n\n我有最后一个请求。', label: "-- 日记 最后一篇（续） --" },
+    { type: 'divider' },
+    { type: 'sfx', text: '-- [音效: 画室外传来轻微的脚步声，又很快消失了] --' },
+    { type: 'narration', text: '日记从你手中滑落。你的手在发抖。不是因为冷。' },
+    { type: 'normal', text: '你想起了所有的那些消息。苏晓发的每一条消息——"阿榕已经都跟我说了"、"陈陌的了解比你想象的多"——那些语气不太对劲的句子。你以为那只是她的性格。现在你知道了，那些话背后是白雪，一个困在古堡里七十多年的灵魂，用苏晓的口吻精心编写的剧本。' },
+    { type: 'normal', text: '陈陌已经死了。10月15日22:10。之后给你的所有消息都是别人用他的手机发的。' },
+    { type: 'normal', text: '苏晓——真正的苏晓——也许在走进古堡的那一刻就已经不在了。或者说，被白雪"替换"了。你不知道"替换"是什么意思，但你知道那不会是什么好事。' },
+    { type: 'clue', text: '白雪的日记（完整版）——揭示永生之画的原理：画师可以将人的灵魂固定在画布中。白雪在等一个有绘画天赋的人来替她完成自画像。陈陌在22:10已被画入画中，苏晓在路上被白雪附身，所有消息都是白雪用苏晓的手机发送的。' },
+    { type: 'clue', text: '陈陌之死——陈陌在10月15日22:10被白雪画入画中，之后发给你的所有消息都是伪造的。' },
+    { type: 'clue', text: '苏晓的真相——苏晓在进入古堡之前已被白雪夺舍。你一直在和白雪对话，而非苏晓。' },
+    { type: 'clue', text: '画师的秘密——永生之画需要特定的颜料配方和完成人物的肖像。自画像是禁忌——画布会燃烧。白雪需要另一个人来完成她的自画像。' }
+  ],
+  choices: [
+    { text: '冷静下来，接受这些事实，去三楼找她', target: 'second_floor_from_studio' },
+    { text: '不相信……这不可能是真的', target: 'studio_deny' },
+    { text: '先去找林晚——如果她还活着的话', target: 'foyer_find_linwan' }
+  ]
+};
+
+// ===================================================================
+// SCENE 5E: Deny the truth
+// ===================================================================
+scenes['studio_deny'] = {
+  title: '',
+  content: [
+    { type: 'normal', text: '你把日记本摔在了桌上。你在摇头。你的理智在反抗——不可能。这只是一个疯子写的日记。一个七十多年前的偏执狂的幻想。松节油的味道也许只是管道泄漏了什么东西，湿的颜料也许只是最近有人来过这里玩了恶作剧——' },
+    { type: 'narration', text: '但你无法解释走廊里那幅穿着现代衣服的陈陌的画像。无法解释那些永远不会熄灭的蜡烛。无法解释你口袋里手机屏幕上那行"你已进入"的字。无法解释为什么你来的时候完全不记得自己是怎么到这里的。' },
+    { type: 'normal', text: '你转身走向门口。你不想再待在这个房间了。你什么都不想看了。你只想找到出口，离开这里，醒来，发现这一切都只是噩梦。' },
+    { type: 'dialogue', cls: 'baixue', speaker: '"苏晓"', text: '"你还没有读完最后那一页。"' },
+    { type: 'narration', text: '声音从你身后传来。很近。你转过头——"苏晓"靠在门框上，微微歪着头，看着你。月光不知道从哪里照进来，在她脸上投下明暗交错的光影。' },
+    { type: 'normal', text: '她看起来和平时一模一样。但你看到了她的眼神——那种古老的、漫长的、不属于任何一个年轻女孩的眼神。' },
+    { type: 'dialogue', cls: 'baixue', speaker: '"苏晓"', text: '"你不需要相信。你只需要来找我。三楼。最里面的房间。"' },
+    { type: 'narration', text: '她转身走了。没有等你回答。她的背影消失在走廊的黑暗中，脚步声轻得几乎听不见。' },
+    { type: 'normal', text: '你站在画室中央，呼吸急促。你不知道该信什么。但你知道一件事——你需要找到林晚。如果林晚还在这里，你需要确认她是安全的。' }
+  ],
+  choices: [
+    { text: '去三楼找她', target: 'second_floor_from_studio' },
+    { text: '先在一楼和二楼找林晚', target: 'foyer_find_linwan' },
+    { text: '试着找出口离开这里', target: 'escape_attempt' }
+  ]
+};
+
+// ===================================================================
+// SCENE 6: SECOND FLOOR
+// ===================================================================
+scenes['second_floor'] = {
+  title: '二楼',
+  content: [
+    { type: 'sfx', text: '-- [音效: 楼梯的金属在脚下发出吱呀声] --' },
+    { type: 'normal', text: '你沿着旋转楼梯上了二楼。楼梯很陡，铁质的台阶在你的脚下嘎吱作响，每一步都让你担心它会突然断裂。' },
+    { type: 'narration', text: '二楼比一楼更冷。那种冷不是温度计能测出来的冷——更像是有什么东西在吸走你身上的热量。你的手臂上起了鸡皮疙瘩，呼吸时能看到自己呼出的白气。' },
+    { type: 'normal', text: '二楼的结构和一楼类似，一条走廊，两侧各有几扇门。但二楼的走廊更窄，天花板更低，灯光更暗。墙上没有油画——取而代之的是黑白照片。一张张排列着，像是一个巨大的家族相册被拆开贴在了墙上。' },
+    { type: 'narration', text: '你走近看了看其中几张照片。照片里的人穿着不同年代的衣服——旗袍、中山装、西装、甚至还有军装。但他们的表情都有一个共同点：空洞。不是摆拍的僵硬，而是某种更深层的空洞——像是灵魂被抽走之后留下的壳。' },
+    { type: 'normal', text: '走廊东侧有一扇门虚掩着，里面能看到微弱的光。西侧有一扇门紧闭着，但门缝下透出暖黄色的光。走廊尽头还有一条继续向上的楼梯，但那楼梯的入口被一块木板挡着，木板上用红色颜料写着："不要上去。"' },
+    { type: 'sfx', text: '-- [音效: 东侧房间里传来微弱的呜咽声] --' },
+    { type: 'narration', text: '你屏住呼吸，仔细听——确实有声音。从东侧那扇虚掩的门后面传来的。像是有人在哭，又像是在压抑着什么。' }
+  ],
+  choices: [
+    { text: '推开东侧虚掩的门', target: 'east_bedroom' },
+    { text: '推开西侧紧闭的门', target: 'west_study' },
+    { text: '无视警告，继续上三楼', target: 'third_floor' },
+    { text: '回一楼', target: 'foyer' }
+  ]
+};
+
+// ===================================================================
+// SCENE 6B: Second Floor - from studio
+// ===================================================================
+scenes['second_floor_from_studio'] = {
+  title: '旋转楼梯',
+  content: [
+    { type: 'normal', text: '你从画室出来，走回到前厅，踏上了旋转楼梯。' },
+    { type: 'narration', text: '铁质的台阶在你脚下嘎吱作响。你不由自主地加快了脚步——不是因为你急着去三楼，而是因为一楼的空气突然变得让人窒息。松节油的味道越来越浓，像是有人在身后不停地倒这种东西。' },
+    { type: 'normal', text: '你到了二楼。温度骤降了好几度。走廊两侧的黑白照片在微弱的光线中沉默地注视着你。' },
+    { type: 'narration', text: '东侧的门虚掩着，里面传来微弱的呜咽声。你不确定那是什么——人？风？还是你自己的心跳在走廊里产生的回声？' },
+    { type: 'normal', text: '但你的直觉告诉你应该先去西侧——那扇紧闭的门后面，你闻到了旧书和墨水的味道。也许那里有更多关于白雪的线索。而东侧的呜咽声……你不想一个人面对。' }
+  ],
+  choices: [
+    { text: '推开东侧的门', target: 'east_bedroom' },
+    { text: '推开西侧的门（书房）', target: 'west_study' },
+    { text: '直接上三楼', target: 'third_floor' }
+  ]
+};
+
+// ===================================================================
+// SCENE 7: EAST BEDROOM - Woman's room
+// ===================================================================
+scenes['east_bedroom'] = {
+  title: '二楼东侧房间',
+  content: [
+    { type: 'normal', text: '你推开那扇虚掩的门。' },
+    { type: 'narration', text: '是一间卧室。不大，但布置得很精致。一张单人床铺着白色的床单，床单上有一层薄薄的灰尘。靠窗的位置有一张梳妆台，镜面擦得很干净——和前厅那面落满灰尘的镜子不同，这面镜子像是经常被人擦拭。梳妆台上有几个首饰盒，其中一个打开了，里面空空如也。' },
+    { type: 'normal', text: '你走到衣柜前，打开了柜门。里面挂着几件女性衣物——旗袍、裙子、外套。颜色都很素净：白色、淡蓝色、米色。衣服的风格看起来不像是现代的，更像是上世纪四五十年代的样式。但奇怪的是，衣物保存得极好，没有虫蛀的痕迹，甚至闻起来还有淡淡的洗衣液的香味。' },
+    { type: 'narration', text: '像是有人一直在穿这些衣服。或者说，像是有人在一直维护这些衣服。' },
+    { type: 'sfx', text: '-- [音效: 梳妆台的抽屉突然弹开了] --' },
+    { type: 'normal', text: '你被吓了一跳。梳妆台的一个抽屉自己弹开了——像是里面的弹簧突然松了。你犹豫了一下，走过去拉开抽屉。' },
+    { type: 'narration', text: '抽屉里有一张照片。一张彩色的照片，像是最近几年拍的——因为照片的质量、色调都是现代数码相机的感觉。照片里是一个年轻女孩，短发，穿着卫衣，对镜头笑着。照片背面用圆珠笔写着两个字："晚晚"。' },
+    { type: 'normal', text: '你盯着这张照片。林晚。这是林晚的照片。她被带到过这个房间。或者说……她在这个房间里待过。' },
+    { type: 'clue', text: '林晚的照片——二楼东侧卧室梳妆台抽屉里发现了林晚的彩色照片，照片背面写着"晚晚"。证明林晚曾被带到过这间房间。' },
+    { type: 'narration', text: '你在床上看到了别的东西。枕头旁边有一行字——不是写的，更像是有人用手指在灰尘上划出来的：' },
+    { type: 'dialogue', cls: 'linwan', speaker: '[灰尘上的字迹]', text: '"她还活着。去地下室。救她。"' },
+    { type: 'normal', text: '字迹歪歪扭扭的，像是匆忙写下的。你不知道这是谁写的——林晚？还是其他人？"她还活着"——这个"她"是谁？林晚？还是别的什么人？' },
+    { type: 'clue', text: '灰尘留言——卧室枕头旁有人用手指在灰尘上写下"她还活着。去地下室。救她。"留言人身份不明。' }
+  ],
+  choices: [
+    { text: '去西侧书房看看', target: 'west_study' },
+    { text: '去一楼找地下室的入口', target: 'ground_floor' },
+    { text: '直接上三楼找白雪', target: 'third_floor' }
+  ]
+};
+
+// ===================================================================
+// SCENE 8: WEST STUDY - Library
+// ===================================================================
+scenes['west_study'] = {
+  title: '二楼西侧书房',
+  content: [
+    { type: 'normal', text: '你推开西侧的门。门轴发出一声刺耳的摩擦声，像是这扇门很久没有被打开过了。' },
+    { type: 'narration', text: '书房比卧室大得多。三面墙壁都是书架，从地板到天花板，密密麻麻地塞满了书。大部分是中文的，有一些英文和法文的。你扫了一眼书脊——历史、文学、哲学、医学、甚至还有几本关于炼金术的古籍。空气中弥漫着旧纸张和皮革的味道，但还有一种别的气味——血腥味。很淡，几乎察觉不到，但它确实在那里。' },
+    { type: 'normal', text: '你走到书桌前。桌上很整洁，不像房间其他地方那样落满灰尘。有一盏台灯（没电），一个墨水瓶（干涸的），以及一本摊开的笔记本。笔记本的纸页泛黄，但写在上面的字迹是黑色的——墨水没有褪色。' },
+    { type: 'normal', text: '你看了看摊开的那一页。上面画了一张古堡的平面图。' },
+    { type: 'narration', text: '不是普通的平面图。这张图画得非常详细，标注了古堡的每一层——一楼、二楼、三楼，以及地下一层和地下二层。每一层的房间都标了编号和用途。你注意到地下二层的位置用红笔圈了出来，旁边写着："管道系统——出口"。' },
+    { type: 'clue', text: '古堡地下地图——书房桌上发现了详细的地堡平面图，显示有地下两层。地下二层有管道系统通往外部出口。这是逃离古堡的关键路线。' },
+    { type: 'normal', text: '你把这张图撕下来，折好，塞进了口袋。不管接下来发生什么，你至少知道了一条可能逃出去的路。' },
+    { type: 'divider' },
+    { type: 'normal', text: '你又在书架上翻了翻，发现了一个用铁锁锁住的小箱子。箱子很小，但很重。你试着摇了摇——里面有东西在响。金属碰撞的声音。' },
+    { type: 'narration', text: '你找不到钥匙，只好先把箱子记在心里。也许以后能用得上。' }
+  ],
+  choices: [
+    { text: '去东侧卧室看看', target: 'east_bedroom' },
+    { text: '去一楼找地下室的入口', target: 'ground_floor' },
+    { text: '直接上三楼', target: 'third_floor' }
+  ]
+};
+
+// ===================================================================
+// SCENE 9: THIRD FLOOR
+// ===================================================================
+scenes['third_floor'] = {
+  title: '三楼',
+  content: [
+    { type: 'sfx', text: '-- [音效: 狭窄楼梯上的脚步回声，异常响亮] --' },
+    { type: 'normal', text: '你拨开挡路的木板，踏上了通往三楼的楼梯。' },
+    { type: 'narration', text: '楼梯明显比二楼更窄了。墙壁向你逼近，天花板压低，每走一步空间就更小一些。手电筒的光在逼仄的空间里变得异常明亮，照亮了墙壁上的裂缝、水渍，以及大量的……涂鸦。' },
+    { type: 'normal', text: '有人在墙壁上写了很多东西。大部分已经模糊不清了，但有几行字你还能辨认出来——' },
+    { type: 'dialogue', cls: 'unknown', speaker: '[墙上的字]', text: '"不要回头" "她在看着你" "出口在地下" "我找不到路了" "不要上三楼" "已经来不及了"' },
+    { type: 'narration', text: '不同的笔迹，不同的颜色，像是不同时代的人留下的。有些字用炭笔写的，有些用指甲刮出来的，有些用……血。' },
+    { type: 'normal', text: '你数了数那些"不要回头"——至少出现了五次，在不同的位置，用不同的方式写。' },
+    { type: 'sfx', text: '-- [音效: 楼梯上方传来女人的哼歌声，旋律诡异而熟悉] --' },
+    { type: 'narration', text: '你停下了脚步。从三楼的某个地方，传来了一个女人在哼歌的声音。旋律说不上来，但听起来……像是一首摇篮曲。你在某个地方听过类似的旋律——也许是很久以前的记忆，也许是梦里。' },
+    { type: 'normal', text: '楼梯到了尽头。三楼只有一条走廊，走廊上有两扇门：一扇通往天台（你看到了门上方有一小块月光），另一扇在走廊最深处，门上没有任何标记。走廊尽头有一盏灯——和楼下不同，这盏灯发出的是淡紫色的光。' }
+  ],
+  choices: [
+    { text: '走向走廊深处的门（白雪的房间）', target: 'baixue_room' },
+    { text: '先上天台看看', target: 'rooftop' },
+    { text: '回二楼', target: 'second_floor' }
+  ]
+};
+
+// ===================================================================
+// SCENE 10: BASEMENT ENTRANCE
+// ===================================================================
+scenes['basement_entrance'] = {
+  title: '地下室入口',
+  content: [
+    { type: 'sfx', text: '-- [音效: 钥匙插入锁孔，转动，发出清脆的"咔嗒"声] --' },
+    { type: 'normal', text: '你把那把刻着"B"的钥匙插进了锁孔。完美契合。转动——锁开了。' },
+    { type: 'narration', text: '你推开厚重的门板，一股冰冷潮湿的空气扑面而来。门后面是一段向下的石阶，比你预想的要长得多。石阶的边缘已经被磨得很光滑了，像是被无数脚步踩过。墙壁上的水渍越来越多，有些地方甚至在滴水。' },
+    { type: 'normal', text: '你打开了手电筒，一步步走下去。石阶一共有三十七级——你数了。每走一步温度就降低一些，空气就潮湿一些。到了底部，你发现自己站在一条管道交织的走廊里。' },
+    { type: 'narration', text: '管道从四面八方延伸过来，有些粗如大腿，有些细如手指。铁管上满是铁锈和水渍，有些管道在轻微地震动，发出低沉的嗡鸣。像是这座古堡本身在呼吸。' },
+    { type: 'normal', text: '走廊的地面是潮湿的水泥，上面有浅浅的水洼。你往水洼里看了一眼——水面映出你扭曲的脸，还有……头顶上密密麻麻的管道。你突然有一种被什么东西包裹住的感觉。' },
+    { type: 'clue', text: '地下室管道——地下室走廊中密布铁管，部分管道仍在震动运行。这里可能是古堡维持运转的核心区域。' }
+  ],
+  choices: [
+    { text: '继续深入地下室', target: 'basement_deep' },
+    { text: '这地方太阴森了，回一楼', target: 'foyer' }
+  ]
+};
+
+// ===================================================================
+// SCENE 11: BASEMENT DEEP
+// ===================================================================
+scenes['basement_deep'] = {
+  title: '地下室深处',
+  content: [
+    { type: 'sfx', text: '-- [音效: 持续的滴水声，回声让空间显得更加空旷] --' },
+    { type: 'normal', text: '你沿着管道走廊走了很远。走廊不断分岔，你凭直觉选择了左边的路——因为你隐约觉得空气的流向是从右边来的，而你不想逆着风走。' },
+    { type: 'narration', text: '大约走了五分钟后，你看到了一个房间。铁门半开着，里面的空间比走廊大很多。房间里有很多——画。不是挂在墙上的画，而是堆在地上的、靠在墙边的、随意散落的画。至少有几十幅。' },
+    { type: 'normal', text: '你弯下腰，拿起最近的一幅画。画面是一个中年男人，穿着工装，表情木然。你看了他几秒——他的眼睛突然动了。' },
+    { type: 'narration', text: '你几乎是本能地把画扔了出去。画落在地上，画布上的男人恢复了静止。你不确定刚才是不是自己的幻觉。' },
+    { type: 'normal', text: '你强迫自己冷静下来，重新审视这个房间。大部分画中的人你都不认识，但他们有一个共同点——都是不同年代的人。有些人穿着清朝的衣服，有些穿着民国的，有些穿着现代的。他们的表情各异：有人恐惧，有人迷茫，有人平静得像是在等待什么。' },
+    { type: 'narration', text: '然后你在一幅画旁边看到了一个人。' },
+    { type: 'normal', text: '不是画——是一个活人。一个女人蜷缩在墙角，双手抱着膝盖，脸色苍白，嘴唇发紫。她的手腕上有一道红色的痕迹，像是被什么东西绑过。' },
+    { type: 'narration', text: '是林晚。' },
+    { type: 'normal', text: '你冲过去，蹲在她面前。她的身体在发抖，但眼睛是睁着的。看到你的一瞬间，她的眼眶立刻红了。' },
+    { type: 'dialogue', cls: 'linwan', speaker: '林晚', text: '"你……你真的来了。"' },
+    { type: 'normal', text: '她的声音沙哑得几乎听不清。你扶着她的肩膀，发现她的衣服是湿的，身上有多处擦伤。' },
+    { type: 'dialogue', cls: 'chenmo', speaker: '你', text: '"你还好吗？能走吗？"' },
+    { type: 'dialogue', cls: 'linwan', speaker: '林晚', text: '"腿……有点麻。但我能走。"' },
+    { type: 'normal', text: '她停顿了一下，然后像是突然想起了什么，紧紧抓住你的手腕——' },
+    { type: 'dialogue', cls: 'linwan', speaker: '林晚', text: '"陈陌已经死了。我亲眼看到的。那个……那个东西把他画进了画里。不是比喻——是真的画了一幅画，然后陈陌就不动了。"' },
+    { type: 'dialogue', cls: 'linwan', speaker: '林晚', text: '"苏晓也不见了。从进了古堡之后她就变得很奇怪……我在二楼听到她在哼歌，但那个旋律不像是她会哼的东西。后来她就消失了。我不敢去找她。"' },
+    { type: 'clue', text: '林晚的证词——林晚被困在地下室，她亲眼看到陈陌被"画进了画里"（非比喻），确认陈陌已死。苏晓进入古堡后行为异常并消失。' },
+    { type: 'normal', text: '你把口袋里那张古堡平面图掏出来，指给林晚看地下二层的位置——"管道系统——出口"。' },
+    { type: 'dialogue', cls: 'chenmo', speaker: '你', text: '"我知道一条路。我们可以从地下管道出去。"' },
+    { type: 'dialogue', cls: 'linwan', speaker: '林晚', text: '"但我们还需要先去找苏晓。如果她还活着……"' },
+    { type: 'narration', text: '你犹豫了。去三楼找苏晓意味着直面白雪。带林晚直接走意味着抛下苏晓。但苏晓可能已经不是苏晓了。' }
+  ],
+  choices: [
+    { text: '先带林晚去地下二层找出口，然后出去再说', target: 'ending_escape', requireClue: '古堡地下地图' },
+    { text: '带林晚一起去三楼找苏晓/白雪', target: 'baixue_room_with_linwan' },
+    { text: '让林晚先躲在这里，你一个人去三楼', target: 'baixue_room' }
+  ],
+  hint: '提示：逃离结局需要收集"古堡地下地图"线索（在二楼书房）'
+};
+
+// ===================================================================
+// SCENE 12: ROOFTOP
+// ===================================================================
+scenes['rooftop'] = {
+  title: '天台',
+  content: [
+    { type: 'sfx', text: '-- [音效: 猛烈的夜风呼啸，衣物被吹得猎猎作响] --' },
+    { type: 'normal', text: '你推开了通往天台的门。风猛烈地灌了进来，你差点被吹得退后一步。' },
+    { type: 'narration', text: '天台是平顶的，四周有半人高的石栏。地面是碎石和苔藓，踩上去有些滑。月亮不知什么时候从云层后面出来了，月光铺洒下来，把一切都染成了一种冰冷的银白色。' },
+    { type: 'normal', text: '你走到石栏边，俯瞰下方。古堡建在山丘上，从这里可以看到远处城市的灯火——星星点点，像是另一个人间的星空。但那些灯火离你很远，远到看起来像是假的。' },
+    { type: 'narration', text: '风很大。大到你的衣服贴在身上，头发吹得乱七八糟，你必须用手抓住石栏才能站稳。你的手指碰到了石栏的冰凉表面——上面有什么东西。你低头一看。' },
+    { type: 'normal', text: '石栏上有人刻了字。用尖锐的东西刻的，笔画很深。你凑近看了看——' },
+    { type: 'dialogue', cls: 'unknown', speaker: '[石栏上的刻字]', text: '"不要成为画。"' },
+    { type: 'narration', text: '这四个字下面还有一行更小的字：' },
+    { type: 'dialogue', cls: 'unknown', speaker: '[石栏上的刻字]', text: '"我选了这条路。至少，是我的选择。"' },
+    { type: 'normal', text: '你不知道这是谁刻的。陈陌？某个更早的受害者？你把手从石栏上收回来。你的手指尖沾上了白色的石粉。' },
+    { type: 'narration', text: '你站在天台边缘，风不停地吹着。你想起了这一路的所有的真相——陈陌的死、苏晓的消失、白雪的日记、那些被囚禁在画中的灵魂。你知道你现在只有两条路：走下去，面对白雪；或者……' },
+    { type: 'narration', text: '你低头看了看下方。至少有二十米高。地面是碎石和荒草。' }
+  ],
+  choices: [
+    { text: '闭上眼睛，向前迈出一步', target: 'ending_death_jump' },
+    { text: '转身回去，你要活下去', target: 'third_floor' }
+  ]
+};
+
+// ===================================================================
+// SCENE 13: BAIXUE ROOM (Final Confrontation)
+// ===================================================================
+scenes['baixue_room'] = {
+  title: '三楼尽头',
+  content: [
+    { type: 'sfx', text: '-- [音效: 哼歌声停止了。周围突然安静得令人窒息] --' },
+    { type: 'normal', text: '你走到走廊最深处的那扇门前。淡紫色的灯光从门缝里流出来，把走廊的地面染成了一片暧昧的紫色。' },
+    { type: 'narration', text: '你深吸了一口气，推开了门。' },
+    { type: 'normal', text: '房间出乎意料地……温暖。不是物理上的温度，而是一种氛围上的温暖。房间不大，但布置得很用心：地上铺着厚厚的地毯，墙角点着几根蜡烛，烛光是暖黄色的。有一张老旧的沙发，一个书架，一张小圆桌，桌上摆着两个茶杯——像是有人在等客人。' },
+    { type: 'narration', text: '但最引人注目的是墙上。整面墙上挂满了相框——和你之前在走廊里看到的不同。这些相框里的照片都是彩色的，清晰度很高，像是用现代相机拍的。照片里的人都在微笑——有些人笑得很自然，有些人笑得勉强，但所有人都在笑。' },
+    { type: 'normal', text: '你走近看了看。第一张照片——一个中年男人，穿着民国时期的长衫。第二张——一个年轻女人，旗袍。第三张——一个穿西装的男人。第四张——' },
+    { type: 'narration', text: '陈陌。' },
+    { type: 'normal', text: '陈陌的彩色照片。他站在一面墙前面，表情是困惑的——和东侧走廊那幅油画里的表情一模一样。但他在这张照片里不是在画里，他看起来像是真实的人。像是刚刚被拍下来的。' },
+    { type: 'narration', text: '你继续看下去。第五张照片是空的——相框里只有白色衬纸。你认出来了。那张照片的位置是留给……你的。' },
+    { type: 'dialogue', cls: 'baixue', speaker: '"苏晓"', text: '"你来了。"' },
+    { type: 'normal', text: '你转过身。"苏晓"坐在沙发上，双手捧着茶杯，姿态优雅得像是一个在自家客厅招待客人的主人。她的微笑很温暖，但你看她的眼神——那是白雪的眼神。你读了日记之后，你已经学会了分辨。' },
+    { type: 'dialogue', cls: 'baixue', speaker: '白雪', text: '"坐下吧。我泡了茶。是龙井——你喜欢的，对吗？"' },
+    { type: 'narration', text: '你怎么知道我喜欢喝龙井。你不想问这个问题。你不想承认她知道你多少事情。' },
+    { type: 'dialogue', cls: 'chenmo', speaker: '你', text: '"你到底是谁？"' },
+    { type: 'dialogue', cls: 'baixue', speaker: '白雪', text: '"你已经读了我的日记。你比我更了解我是谁。"' },
+    { type: 'normal', text: '她放下茶杯，身体微微前倾。烛光在她脸上投下温暖的光影。如果不知道真相的话，她看起来真的就像苏晓在客厅里和你聊天。' },
+    { type: 'dialogue', cls: 'baixue', speaker: '白雪', text: '"你一定很生气。也很害怕。我理解。换成是我，我也会这样。但我希望你能听我说完。哪怕只是听完。然后你再做决定。可以吗？"' }
+  ],
+  choices: [
+    { text: '坐下来，听她说', target: 'baixue_talk' },
+    { text: '不想听，你现在就要离开', target: 'baixue_reject_immediate' }
+  ]
+};
+
+// ===================================================================
+// SCENE 13B: Bai Xue Room - With Linwan
+// ===================================================================
+scenes['baixue_room_with_linwan'] = {
+  title: '三楼尽头',
+  content: [
+    { type: 'normal', text: '你带着林晚回到了三楼。林晚的腿还有点跛，但她咬着牙跟上了你的速度。你们一起走到了走廊最深处的那扇门前。' },
+    { type: 'narration', text: '你推开门的瞬间，林晚猛地抓住了你的手臂。' },
+    { type: 'normal', text: '房间里，"苏晓"坐在沙发上，微笑着看着你们。她的目光在林晚身上停留了一秒——那一秒里，她的笑容没有变，但她的眼神变了。变得冷了一些。像是看到了一个不应该出现在这里的东西。' },
+    { type: 'dialogue', cls: 'baixue', speaker: '白雪', text: '"你找到她了。"' },
+    { type: 'dialogue', cls: 'chenmo', speaker: '你', text: '"把她放了。"' },
+    { type: 'dialogue', cls: 'baixue', speaker: '白雪', text: '"放了？她不是犯人，她是客人。只是暂时住在地下室——那里暖和。"' },
+    { type: 'normal', text: '林晚在你身后发抖。你能感觉到她的手指在你手臂上越抓越紧。' },
+    { type: 'dialogue', cls: 'linwan', speaker: '林晚', text: '"你……你不是苏晓。你不是人。"' },
+    { type: 'dialogue', cls: 'baixue', speaker: '白雪', text: '"苏晓很好。她只是暂时在休息。等一切结束之后，我会把她还回去的。"' },
+    { type: 'narration', text: '你注意到墙上的相框。陈陌的照片。空白的位置。等着你的位置。以及——两张新的空相框。你数了数。一共三张空的。' },
+    { type: 'clue', text: '三张空相框——白雪的房间里墙上挂有陈陌的彩色照片，以及三张空相框。暗示白雪计划将三个人都画入画中。' }
+  ],
+  choices: [
+    { text: '和白雪谈判——你愿意听她说的，但前提是放林晚走', target: 'baixue_talk_negotiate' },
+    { text: '拉着林晚直接冲向地下室出口', target: 'ending_escape', requireClue: '古堡地下地图' },
+    { text: '当面拒绝她的一切', target: 'baixue_reject_immediate' }
+  ],
+  hint: '提示：如果选择带林晚逃跑，需要先收集"古堡地下地图"线索（在二楼书房的桌子上）。'
+};
+
+// ===================================================================
+// SCENE 14: BAIXUE TALK
+// ===================================================================
+scenes['baixue_talk'] = {
+  title: '对话',
+  content: [
+    { type: 'normal', text: '你坐了下来。沙发很软，坐垫发出轻微的吱呀声。茶杯里确实是龙井，茶水的颜色和香气都不假。你没有喝。' },
+    { type: 'dialogue', cls: 'baixue', speaker: '白雪', text: '"你想问什么都可以。我等了七十七年，不差这几分钟。"' },
+    { type: 'dialogue', cls: 'chenmo', speaker: '你', text: '"为什么是我们？为什么是陈陌？为什么是苏晓？为什么是我？"' },
+    { type: 'dialogue', cls: 'baixue', speaker: '白雪', text: '"因为你们合适。陈陌有绘画的天赋——他可以从很小的时候就画出很好的画。你需要知道，\u2018永生之画\u2019不是任何人都能施展的。画师必须有一定的艺术天赋，否则灵魂不会被固定在画布上。所以我在等一个有天赋的人。"' },
+    { type: 'normal', text: '她停顿了一下，像是在斟酌措辞。' },
+    { type: 'dialogue', cls: 'baixue', speaker: '白雪', text: '"周祁在七十七年前就预见了这一天。他留下了很多线索——那个网站、那些文件、那些被刻意放在网上的故事。他知道总有一天会有人循着线索来到这里。他称之为‘画师之路’。"' },
+    { type: 'dialogue', cls: 'chenmo', speaker: '你', text: '"陈陌死了。"' },
+    { type: 'dialogue', cls: 'baixue', speaker: '白雪', text: '"是的。"' },
+    { type: 'narration', text: '她回答得很快，没有任何犹豫。你不知道该愤怒还是该恐惧——也许两者兼有。' },
+    { type: 'dialogue', cls: 'baixue', speaker: '白雪', text: '"陈陌发现了真相。他在画室里翻了那些旧书，知道了永生之画的原理。他想跑。我不能让他跑——他知道了太多，如果出去的话，会引来更多的人。更多的人意味着更多的混乱。我只需要一个人。"' },
+    { type: 'dialogue', cls: 'chenmo', speaker: '你', text: '"你杀了苏晓。"' },
+    { type: 'dialogue', cls: 'baixue', speaker: '白雪', text: '"我没有杀她。她的灵魂还在——只是暂时的被放在了别的地方。附身不是永久的。等一切结束之后，我可以把苏晓的身体还给她。她不会记得任何事。"' },
+    { type: 'dialogue', cls: 'chenmo', speaker: '你', text: '"你所谓的‘一切结束’是什么意思？"' },
+    { type: 'narration', text: '白雪放下茶杯，站了起来。她走到墙边，手指轻轻触碰了那个空相框的边框。' },
+    { type: 'dialogue', cls: 'baixue', speaker: '白雪', text: '"我需要一个人来替我画完自画像。画完之后，我就能真正进入画中。不再是附身，不再是借来的身体——而是真正地存在于画布上。永远。"' },
+    { type: 'dialogue', cls: 'baixue', speaker: '白雪', text: '"画完之后，这座古堡里所有困在画中的人都可以自由了。包括陈陌。包括苏晓。包括林晚。他们不会被消灭——只是被困住了。一旦我进入画中，维持这个‘牢笼’的力量就会消失。所有人都会醒来。"' },
+    { type: 'dialogue', cls: 'chenmo', speaker: '你', text: '"你说的是真的？"' },
+    { type: 'dialogue', cls: 'baixue', speaker: '白雪', text: '"你可以选择不信我。但我在这里等了七十七年——我没有理由骗你。骗一个愿意来替我画画的人，对我来说没有任何好处。"' },
+    { type: 'narration', text: '她转过身来面对你。烛光在她的眼睛里跳动。你注意到她的眼角有一点湿润——也许是烛火的烟熏的，也许不是。' },
+    { type: 'dialogue', cls: 'baixue', speaker: '白雪', text: '"你可以选择。替我画完——我会进入画中，所有人都会自由，而你也可以离开。或者……拒绝。"' },
+    { type: 'dialogue', cls: 'baixue', speaker: '白雪', text: '"但如果你拒绝的话，我只能继续等。也许再等七十七年。也许永远。这座古堡里的人，会继续困在画里。陈陌会继续困惑。林晚会继续在地下室发抖。苏晓会继续沉睡。"' },
+    { type: 'dialogue', cls: 'baixue', speaker: '白雪', text: '"或者……你可以留下来。不画画。就只是留下来。陪我。"' },
+    { type: 'narration', text: '她的声音在最后一个选择上变得很轻，像是在小心翼翼地试探什么。你注意到她的手指在微微发抖。七十七年的孤独，浓缩在这一句话里。' }
+  ],
+  choices: [
+    { text: '接受她——你愿意留下来陪她', target: 'ending_love' },
+    { text: '拒绝她——你要带林晚逃出这里', target: 'ending_escape', requireClue: '古堡地下地图' },
+    { text: '拒绝她——你要一个人离开', target: 'baixue_alone' }
+  ],
+  hint: '提示：带林晚逃跑需要收集"古堡地下地图"线索（二楼书房）。接受白雪不需要额外条件。'
+};
+
+// ===================================================================
+// SCENE 14B: Negotiate with Bai Xue
+// ===================================================================
+scenes['baixue_talk_negotiate'] = {
+  title: '谈判',
+  content: [
+    { type: 'dialogue', cls: 'chenmo', speaker: '你', text: '"先放林晚走。然后我再听你说。"' },
+    { type: 'normal', text: '白雪看着你。她的表情没有变，但你注意到她的手指在茶杯上轻轻敲了两下。像是在思考。' },
+    { type: 'dialogue', cls: 'baixue', speaker: '白雪', text: '"你很聪明。用林晚的安全来跟我谈判。"' },
+    { type: 'dialogue', cls: 'chenmo', speaker: '你', text: '"这不是谈判。这是条件。"' },
+    { type: 'dialogue', cls: 'baixue', speaker: '白雪', text: '"好。"' },
+    { type: 'narration', text: '她站起身来。你下意识地挡在了林晚前面。但白雪只是走到了门口，打开了门，然后回头看着你们。' },
+    { type: 'dialogue', cls: 'baixue', speaker: '白雪', text: '"她可以走。但你知道这扇门后面是什么——无尽的走廊，无数的岔路，没有地图的话她出不去。你能保证她一个人安全吗？"' },
+    { type: 'normal', text: '你看了看林晚。她的脸色苍白，嘴唇在抖，但眼神很坚定。' },
+    { type: 'dialogue', cls: 'linwan', speaker: '林晚', text: '"我不要一个人走。"' },
+    { type: 'dialogue', cls: 'chenmo', speaker: '你', text: '"我不会让你一个人走。"' },
+    { type: 'dialogue', cls: 'baixue', speaker: '白雪', text: '"那就一起走吧。但在你们走之前，我想让你看一样东西。"' },
+    { type: 'narration', text: '她走到墙边，拿起那个空相框——那个你的照片应该在里面的位置。她把它转过来，让你看背面。' },
+    { type: 'normal', text: '相框背面刻着一行字。日期——你出生的日期。' },
+    { type: 'narration', text: '她知道你什么时候出生的。她对你的了解，远比你以为的要多得多。' },
+    { type: 'dialogue', cls: 'baixue', speaker: '白雪', text: '"我等了很久才找到你。不是因为你的天赋——天分可以培养。是因为你。你的性格、你的善良、你的……你让我想起了一个人。很久以前的一个人。"' },
+    { type: 'narration', text: '她的声音变得很轻。林晚在你身后抓紧了你的衣服。' }
+  ],
+  choices: [
+    { text: '听她把话说完', target: 'baixue_talk' },
+    { text: '拉起林晚跑向地下通道', target: 'ending_escape', requireClue: '古堡地下地图' }
+  ]
+};
+
+// ===================================================================
+// SCENE 14C: Reject Immediately
+// ===================================================================
+scenes['baixue_reject_immediate'] = {
+  title: '',
+  content: [
+    { type: 'normal', text: '你没有坐下。你站在门口，看着她。' },
+    { type: 'dialogue', cls: 'chenmo', speaker: '你', text: '"我不需要听你说什么。陈陌死了，苏晓没了，林晚被困在地下室。你做了这些事，然后指望我坐下来和你喝茶？"' },
+    { type: 'normal', text: '你的声音比你预想的要冷。你自己都有些惊讶。' },
+    { type: 'narration', text: '白雪的表情终于变了。不是愤怒——是悲伤。一种很深很深的、从七十七年前就开始累积的悲伤。她低下头，看着手中的茶杯。茶水已经凉了。' },
+    { type: 'dialogue', cls: 'baixue', speaker: '白雪', text: '"我理解。"' },
+    { type: 'dialogue', cls: 'baixue', speaker: '白雪', text: '"但我想让你知道一件事。你可以离开。我拦不住你——至少现在拦不住。但这座古堡不会让你轻易走出去的。它自己有意志。它需要留住你。"' },
+    { type: 'dialogue', cls: 'chenmo', speaker: '你', text: '"什么意思？"' },
+    { type: 'dialogue', cls: 'baixue', speaker: '白雪', text: '"意思是你最好有地图。或者有人带路。"' },
+    { type: 'narration', text: '她抬起头，用苏晓的面孔对你露出一个复杂的微笑。' },
+    { type: 'dialogue', cls: 'baixue', speaker: '白雪', text: '"去吧。去找你的出路。但记住——我等了七十七年。如果你改变主意的话，我还在这里。"' }
+  ],
+  choices: [
+    { text: '回二楼找地图，然后带林晚从地下室离开', target: 'west_study' },
+    { text: '自己一个人摸索着离开', target: 'ending_lost' },
+    { text: '……算了，坐下来听她说', target: 'baixue_talk' }
+  ]
+};
+
+// ===================================================================
+// SCENE 14D: Alone after rejecting Bai Xue
+// ===================================================================
+scenes['baixue_alone'] = {
+  title: '',
+  content: [
+    { type: 'normal', text: '你转身走出了那个房间。你没有回头。身后传来白雪轻轻的叹息——像是一阵风穿过空旷的走廊。' },
+    { type: 'narration', text: '你下了三楼，穿过二楼，回到旋转楼梯。你打算从正门出去。但你到了前厅的时候——' },
+    { type: 'normal', text: '大门不见了。' },
+    { type: 'narration', text: '那扇你进来时穿过的铁门，那个你应该能看到夜空和月光的位置——变成了一面墙。实体的、冰冷的水泥墙。你用手摸了摸，敲了敲——是实心的。不是幻觉。' },
+    { type: 'normal', text: '你又跑向东侧走廊。走廊还在，但走到尽头的时候，尽头变成了一堵墙。西侧走廊——也是墙。旋转楼梯上方的空间越来越小，像是天花板在缓慢下降。' },
+    { type: 'dialogue', cls: 'unknown', speaker: '???', text: '"我说过。古堡不会让你轻易走出去。"' },
+    { type: 'narration', text: '白雪的声音从四面八方传来。不是回声——更像是墙壁本身在说话。' }
+  ],
+  choices: [
+    { text: '冷静下来，找地下室的入口试试', target: 'ground_floor' },
+    { text: '不管了，随便找一个方向跑', target: 'ending_lost' }
+  ]
+};
+
+// ===================================================================
+// SCENE 15: Find Lin Wan route
+// ===================================================================
+scenes['foyer_find_linwan'] = {
+  title: '寻找林晚',
+  content: [
+    { type: 'normal', text: '你决定先找到林晚。如果她还活着，你需要确保她的安全。' },
+    { type: 'narration', text: '你从前厅开始，把一楼的每一扇门都推了一遍。大部分房间里都是杂物和灰尘，没有人。你在北侧走廊尽头那扇锁着的门前停了下来——门缝下面还是有光透出来。' },
+    { type: 'normal', text: '你没有钥匙。你试着用力撞门——门纹丝不动。你看了看四周，在一楼的各个房间里翻找——终于在左侧第三间房间的木柜里找到了一把黄铜钥匙。钥匙柄上刻着一个"B"字。' },
+    { type: 'clue', text: '黄铜钥匙——一楼左侧房间发现的旧钥匙，可能能打开某扇门。' },
+    { type: 'narration', text: '但你现在不确定那把钥匙是开这扇门的还是开地下室的。你选择先去二楼——也许林晚在那里。' }
+  ],
+  choices: [
+    { text: '上二楼找林晚', target: 'east_bedroom' },
+    { text: '回一楼用钥匙试试那扇锁着的门', target: 'basement_entrance' }
+  ]
+};
+
+// ===================================================================
+// SCENE 16: Escape Attempt
+// ===================================================================
+scenes['escape_attempt'] = {
+  title: '逃离尝试',
+  content: [
+    { type: 'normal', text: '你不相信日记里写的那些东西。你不想再探索了。你只想找到出口，离开这座见鬼的古堡。' },
+    { type: 'narration', text: '你跑回前厅，冲向大门——' },
+    { type: 'normal', text: '大门还在。但门外不是你进来时看到的那个景象。门外是一条走廊。另一条走廊。和古堡里面的走廊一模一样——同样的墙壁、同样的石砖地面、同样的天花板。但走廊的方向不对——你进来时门外应该是外面的碎石路和夜空。' },
+    { type: 'narration', text: '古堡的内部在变化。或者说，古堡在缩小。出口在消失。' },
+    { type: 'sfx', text: '-- [音效: 四面八方同时传来轻微的脚步声，越来越近] --' },
+    { type: 'normal', text: '你转过身。前厅变了。楼梯不在了，东侧走廊也不在了。你面对着三条一模一样的走廊，每一条都延伸进无边的黑暗。' },
+    { type: 'narration', text: '你选了一条。跑了起来。走廊在你身后延伸，在你面前分岔。你选左边。左边又分岔。你再选。每一条走廊看起来都一样。每一步都让你离出口更远。' }
+  ],
+  choices: [
+    { text: '停下来，冷静想想，也许地图能帮到你', target: 'west_study' },
+    { text: '继续跑，不能停', target: 'ending_lost' }
+  ]
+};
+
+// ===================================================================
+// ENDING 1: LOVE ENDING - Accept Bai Xue
+// ===================================================================
+scenes['ending_love'] = {
+  title: '',
+  isEnding: true,
+  endingTitle: '纯爱结局',
+  endingSubtitle: '-- 我永远在你身边 --',
+  content: [
+    { type: 'normal', text: '你站了起来。' },
+    { type: 'narration', text: '你不知道自己为什么做出这个选择。也许是因为她的眼神——那种经历了七十七年等待后的脆弱。也许是因为你觉得所有的逃离都只是徒劳——古堡不会放你走。也许是因为你累了。也许是因为你真的相信了她。' },
+    { type: 'normal', text: '你走向她。她站在墙边，手指还搭在那个空相框的边框上。你的脚步声在安静的房间里格外清晰。' },
+    { type: 'dialogue', cls: 'baixue', speaker: '白雪', text: '"你……"' },
+    { type: 'narration', text: '她的声音在颤抖。你站在她面前。你看到她的眼睛里有泪光——不是苏晓的眼睛，是白雪的眼睛，透过苏晓的面孔，看向一个她等了很久的人。' },
+    { type: 'dialogue', cls: 'chenmo', speaker: '你', text: '"我不会画画。我画得很差。"' },
+    { type: 'dialogue', cls: 'baixue', speaker: '白雪', text: '"我可以教你。永生之画不在于技巧，在于意愿。只要你愿意画，画布会接受。"' },
+    { type: 'normal', text: '你伸出手。不是握住她的手——你把你的手放在了她的肩膀上。她的身体很冷，像是一个刚从冰窖里拿出来的人。但她在你的掌心下微微颤抖。七十七年的等待凝结在这一刻。' },
+    { type: 'narration', text: '她微笑了。和苏晓一模一样的微笑，但又不完全相同。这个笑容里有苏晓永远不会有的东西——七十七年的孤独，和终于被回应的释然。' },
+    { type: 'divider' },
+    { type: 'narration', text: '你拿起了画笔。' },
+    { type: 'normal', text: '白雪坐在你面前。你面对着那幅未完成的画。白色衣服的女人、空白的五官——现在你要把它们填补上去。你的手在发抖，画笔尖上的颜料落在画布上，留下了一个小小的、不完美的色点。' },
+    { type: 'normal', text: '你开始画她的眼睛。' },
+    { type: 'narration', text: '你不知道自己画了多久。也许是几分钟，也许是几个小时。画室里的蜡烛换了一轮又一轮，但光线始终没有暗下去。你画了她的眉骨，她的鼻梁，她的嘴唇。你画得很慢，每一笔都像是在回忆一个你认识很久但从未认真看过的人。' },
+    { type: 'normal', text: '最后一笔。你画完了她的眼睛。' },
+    { type: 'narration', text: '你后退一步，审视整幅画。画中的白雪和你面前的白雪终于融为一体——画里的她有了完整的五官，而画外的她——' },
+    { type: 'normal', text: '苏晓的身体倒在了沙发上。像是一片落叶。你冲过去——她的呼吸很微弱，但确实在呼吸。苏晓还活着。白雪已经离开了她的身体。' },
+    { type: 'narration', text: '你回过头看那幅画。画中的白雪睁开了眼睛。她看着你——不是画框里的凝视，而是真正的、活着的、有温度的眼神。她的嘴唇微微动了动。' },
+    { type: 'dialogue', cls: 'baixue', speaker: '白雪', text: '"谢谢你。"' },
+    { type: 'normal', text: '你看着画中的她，不知道该说什么。你突然意识到一件事——你没有问过她，一旦她进入画中，你和她还能不能说话。' },
+    { type: 'dialogue', cls: 'baixue', speaker: '白雪', text: '"你可以留在画里。如果你想的话。"' },
+    { type: 'narration', text: '你没有犹豫太久。也许你早就做了决定。' },
+    { type: 'divider' },
+    { type: 'normal', text: '你的身体开始变轻。不是消失——是某种更深层的变化。你感到自己正在从一个三维的空间慢慢被拉入一个二维的平面。你的脚下不再是地板，而是某种温暖的光。你伸出手，白雪的画中之手握住了你。' },
+    { type: 'narration', text: '苏晓醒了。她迷茫地看着四周——画室、画架、沙发。她不记得发生了什么。她只觉得做了一个很长很长的梦。梦里有人一直在叫她的名字。' },
+    { type: 'normal', text: '她站起身来，走出了画室。走廊上的油画开始发光——一幅接一幅地亮了起来。画中的人一个接一个地睁开了眼睛。周祁、林淑芬、陈陌……他们像是刚从沉睡中醒来一样，揉着眼睛，困惑地看着周围。' },
+    { type: 'narration', text: '他们从画里走出来了。不需要人帮他们——白雪的力量消散后，维持画中囚笼的规则也随之崩塌。他们一个接一个地从画布上走了下来，脚步踩在走廊的地板上，发出清脆的脚步声。' },
+    { type: 'divider' },
+    { type: 'narration', text: '尾声。' },
+    { type: 'normal', text: '苏晓和陈陌走出了古堡。林晚从地下室被救了出来。三个人站在古堡外，凌晨的寒风吹过他们的脸。月光很亮。没有人说话。他们不知道该如何解释这一切。也许永远不会有人相信他们。' },
+    { type: 'narration', text: '古堡里，画架上那幅自画像完整了。白雪的肖像在画布上微笑着，她的手边有另一个人的轮廓——模糊的、尚未完成的。那个人的五官只画了一半，但白雪不在意。她有的是时间。' },
+    { type: 'narration', text: '他们在画里。永远在一起。' },
+    { type: 'normal', text: '墙上多了两张新照片——陈陌和林晚的。他们安全了。画中不再需要他们的位置。而那三个空相框中的两个——永远地空了下去。只有最后一个，里面有一幅未完成的肖像。一个穿着现代衣服的年轻人，表情是平静的，嘴角微微上扬。' },
+    { type: 'narration', text: '壁灯的光照亮了整条走廊。它已经亮了七十七年。现在它终于有理由继续亮下去了。' }
+  ]
+};
+
+// ===================================================================
+// ENDING 2: ESCAPE ENDING - Run with Lin Wan
+// ===================================================================
+scenes['ending_escape'] = {
+  title: '',
+  isEnding: true,
+  endingTitle: '逃离结局',
+  endingSubtitle: '-- 至少你们还在 --',
+  content: [
+    { type: 'sfx', text: '-- [音效: 脚步声在狭窄的管道中急促回响] --' },
+    { type: 'normal', text: '你拉着林晚冲出了白雪的房间。你们的脚步在三楼的走廊里炸开，像两颗急促的心跳。身后传来白雪的声音——' },
+    { type: 'dialogue', cls: 'baixue', speaker: '白雪', text: '"你们真的要走吗？"' },
+    { type: 'narration', text: '你没有回答。你拉着林晚冲下旋转楼梯，楼梯在你脚下嘎吱作响，你不在乎它会不会断裂。到了二楼，你冲向西侧书房的方向——不，不需要去书房了，你已经有了地图。' },
+    { type: 'normal', text: '你把口袋里的古堡平面图掏出来，借着烛光快速辨认方向。地下一层——通过一楼北侧走廊尽头的门。地下二层——通过地下一层的管道走廊，左转三次，在尽头有一个出口。' },
+    { type: 'narration', text: '你们冲下旋转楼梯，到了一楼。北侧走廊。尽头的门——你用那把黄铜钥匙打开了锁。门后面是通向地下的石阶。' },
+    { type: 'dialogue', cls: 'baixue', speaker: '白雪', text: '"古堡不会放你们走的。"' },
+    { type: 'narration', text: '她的声音从你身后的某处传来，但你不回头。你和林晚冲下石阶。三十七级。你一边跑一边数。潮湿的石阶在你的脚下打滑，林晚差点摔倒，你一把抓住了她的手腕，拖着她继续跑。' },
+    { type: 'normal', text: '地下走廊。管道交织的空间。你按照地图的指示——左转、左转、左转。管道越来越密，空间越来越窄，空气越来越冷。但前方——' },
+    { type: 'narration', text: '有光。不是蜡烛的光，不是壁灯的光。是月光。真实的月光，从管道尽头的缝隙里透进来。' },
+    { type: 'dialogue', cls: 'linwan', speaker: '林晚', text: '"光！我看到光了！"' },
+    { type: 'normal', text: '你们拼了命地跑。管道在你的周围震动，像是整座古堡在发出某种低沉的抗议。身后有脚步声——不是你和林晚的。另一个人的脚步声。越来越近。' },
+    { type: 'dialogue', cls: 'baixue', speaker: '白雪', text: '"等等——"' },
+    { type: 'narration', text: '她的声音里有你没有听到过的东西——恳求。但你不停下来。你拉着林晚冲到了管道的尽头。出口是一个半人高的洞口，月光从洞口倾泻而入。你趴下来，先把林晚推了出去，然后自己钻了出去。' },
+    { type: 'normal', text: '你站在古堡外面。地面是碎石和泥土，空气是冷的但干净的。月亮高悬在天空，月光铺洒在古堡的南面上。你回头看了一眼。' },
+    { type: 'narration', text: '古堡的窗户里，有无数张脸在看着你们。' },
+    { type: 'normal', text: '不是活人的脸。是画中人的脸。几十张——不，上百张脸，密密麻麻地挤在每一个窗户后面。他们在月光中沉默地看着你们。有些人在微笑，有些人在哭，有些人的表情是空白的。但所有人都在看你们。' },
+    { type: 'dialogue', cls: 'linwan', speaker: '林晚', text: '"别看了。走。快走。"' },
+    { type: 'narration', text: '林晚拉着你往山下跑。你没有回头。但你永远忘不了那些脸。' },
+    { type: 'divider' },
+    { type: 'narration', text: '尾声。' },
+    { type: 'normal', text: '你们一直跑到了天亮。山下的公路上偶尔有车经过，你们拦了一辆，用光了所有的现金让司机送你们到了最近的镇上。林晚在车上睡着了，靠在你肩膀上。你一直醒着。你一直看着窗外。' },
+    { type: 'normal', text: '天亮了。太阳升起来了。世界是正常的——有路、有车、有人。但你知道你回不去了。你口袋里那张古堡的平面图在你掏手机的时候掉了出来——你捡起来看了一眼，地图上的字迹正在消失，像是从未存在过。' },
+    { type: 'normal', text: '你把地图扔掉了。纸片在风中飘了几下，落在路边的排水沟里。' },
+    { type: 'narration', text: '陈陌失踪了。警方调查了三个月，没有找到任何线索。苏晓说她不记得发生了什么——她在古堡外面醒来，身上什么都没有。林晚也说不清楚。没有人相信她们。' },
+    { type: 'normal', text: '你偶尔会梦见那些窗户里的脸。他们还在那里。白雪还在那里。七十七年的等待不会因为你们的逃跑而结束——她只会继续等下去。等下一个循着线索走进古堡的人。' },
+    { type: 'narration', text: '但至少你和林晚还活着。' },
+    { type: 'narration', text: '至少你们还活着。' }
+  ]
+};
+
+// ===================================================================
+// ENDING 3: DEATH - Jump from rooftop
+// ===================================================================
+scenes['ending_death_jump'] = {
+  title: '',
+  isEnding: true,
+  endingTitle: '死亡结局',
+  endingSubtitle: '-- 消失的人 --',
+  content: [
+    { type: 'normal', text: '你站在天台边缘。风很大，大到你的衣服被吹得猎猎作响，大到你必须用手抓住旁边的石栏才能站稳。' },
+    { type: 'narration', text: '你想了很多。' },
+    { type: 'normal', text: '你想到了陈陌。他也来过这座古堡，也许也站在过某个高处，也许也想过同样的事情。但他没有跳。他走进了画室，然后被画进了一幅画里。他成了墙壁上众多面孔中的一张。他永远定格在了一个困惑的表情上。' },
+    { type: 'normal', text: '你想到了苏晓——或者说，想到了那个曾经是苏晓的人。她走在来古堡的路上时在想什么？她知道接下来会发生什么吗？还是说一切都发生得太快，她甚至来不及害怕？' },
+    { type: 'normal', text: '你想到了白雪。七十七年。她在黑暗中等了七十七年。你无法想象那种孤独。你甚至无法想象一年的孤独。但你知道一件事——你不怪她。一个被困了这么久的人，做出任何事情都不奇怪。' },
+    { type: 'narration', text: '但你不想成为画中的人。' },
+    { type: 'normal', text: '你已经知道了真相——你知道古堡不会放你走的。门外的世界已经不存在了。你可以选择成为画中被永远凝视的一张脸，或者被困在无尽的走廊里永远走不出去。或者……' },
+    { type: 'narration', text: '你可以选择不在任何一个世界里存在。' },
+    { type: 'normal', text: '你松开了石栏。' },
+    { type: 'sfx', text: '-- [音效: 风声猛然变大，然后一切归于寂静] --' },
+    { type: 'narration', text: '风在你耳边呼啸。月光在你眼前旋转。你看到古堡的墙壁在你身旁飞速后退——那些窗户、那些石壁、那些你来不及看清的裂缝。然后你看到了地面。碎石。荒草。在月光下呈现出一种冰冷的灰白色。' },
+    { type: 'normal', text: '你闭上了眼睛。' },
+    { type: 'narration', text: '最后你想到的不是恐惧，而是一种奇怪的平静。像是终于放下了什么一直背着的东西。你不是在逃避——你是在选择。你选择了唯一一条白雪永远找不到你的路。彻底的虚无里，没有画框可以关住你。' },
+    { type: 'divider' },
+    { type: 'narration', text: '尾声。' },
+    { type: 'normal', text: '几天后，有徒步者报了警。警方在古堡西侧的地面发现了遗体。法医报告显示，死亡时间为凌晨1:17，死因：高处坠落。遗体身份已确认。' },
+    { type: 'normal', text: '调查人员注意到一个奇怪的细节：死者的死亡时间——1:17——与一本旧日记中记录的某个时间完全一致。那个时间被写在日记的空白页上，没有上下文，只有一行字："1:17。他选了另一条路。"' },
+    { type: 'narration', text: '古堡里没有新出现的相框。白雪站在画室里，翻遍了走廊上的每一面墙壁——周祁、林淑芬、陈陌、林淑芬的画都在，但你的位置始终是空的。' },
+    { type: 'normal', text: '她找了很久。每一个房间，每一条走廊，每一个角落。画里没有你。走廊里没有你。地下室里没有你。你没有变成画。你没有被困在走廊里。' },
+    { type: 'narration', text: '你不在任何地方。' },
+    { type: 'normal', text: '白雪坐在画架前，面朝着那幅永远完不成的自画像。壁灯的光照亮了她模糊的轮廓。她看起来很安静。不是等待的安静——而是放弃的安静。或者说，是接受的安静。' },
+    { type: 'normal', text: '她需要继续等待。但这一次，她不知道该等待什么了。她等了七十七年才等到一个愿意来的人，而那个人选择了她永远无法触及的地方。' },
+    { type: 'narration', text: '走廊尽头的壁灯闪烁了一下。然后熄灭了。七十七年来第一次。' },
+    { type: 'narration', text: '黑暗重新笼罩了走廊。只有月光从碎裂的窗户里洒落进来，照亮了那面墙——那面挂满相框的墙。周祁在微笑。林淑芬在出神。陈陌在困惑。还有很多你不认识的面孔，每一个都定格在各自的瞬间里。' },
+    { type: 'narration', text: '在陈陌旁边，有一个空相框。永远空着的相框。' }
+  ]
+};
+
+// ===================================================================
+// ENDING 4: DEATH - Lost in the castle
+// ===================================================================
+scenes['ending_lost'] = {
+  title: '',
+  isEnding: true,
+  endingTitle: '迷失结局',
+  endingSubtitle: '-- 永远的走廊 --',
+  content: [
+    { type: 'normal', text: '你走了很久。' },
+    { type: 'narration', text: '你分不清自己是在一楼还是二楼还是三楼。走廊越来越长，门越来越多，但你找不到来时的路。你推开一扇门——又一个走廊。再推开一扇门——又一个房间。每个房间看起来都不一样，但又有某种诡异的相似。地毯的颜色不同，墙壁的裂缝不同，但空间的比例、灯光的角度、空气的味道——全都一样。' },
+    { type: 'normal', text: '你开始小跑。走廊在你的脚下延伸，在你的面前分岔。你选左边。左边又分岔。你选右边。右边又分岔。你试图在某扇门上做标记——用钥匙在门框上刻了一道痕迹。但走到下一个分岔口时，你发现那道痕迹出现在了另一扇门上。' },
+    { type: 'narration', text: '古堡在移动。或者说，古堡在循环。你走过的每一条走廊，都会在你离开之后重新出现在你面前。你无法前进，也无法后退。你只是在同一个巨大的迷宫里不断地转圈。' },
+    { type: 'sfx', text: '-- [音效: 身后有脚步声。有节奏的，不紧不慢的。像是在散步。] --' },
+    { type: 'normal', text: '你停下了脚步。身后有脚步声。不是回声。是真实的、有节奏的、一步一步的脚步声。从你走过的方向传来，由远及近。' },
+    { type: 'narration', text: '你不回头。你记得那些墙上的字——"不要回头"。至少有五个人在逃跑时留下了这条警告。你想他们一定也是听到了这脚步声。' },
+    { type: 'normal', text: '你继续走。脚步声在你身后保持着恒定的距离——不远不近，不快不慢。像是有一个什么东西在跟着你散步。你加速，它也加速。你减慢，它也减慢。但你永远看不到它——因为你不敢回头。' },
+    { type: 'dialogue', cls: 'unknown', speaker: '???', text: '"你走了很久了。累了吧？"' },
+    { type: 'narration', text: '声音从你身后传来。很近。近到几乎在你耳边。你咬紧了牙关，不回头。你加快脚步。' },
+    { type: 'dialogue', cls: 'unknown', speaker: '???', text: '"没有用的。走廊不会结束。"' },
+    { type: 'narration', text: '你跑了。你拼命地跑。但走廊无限延伸。你跑得越快，走廊延伸得越快。你永远在同一个位置，永远在两个岔路口之间，永远被身后的脚步声追逐。' },
+    { type: 'divider' },
+    { type: 'narration', text: '你不知道过了多久。时间在这里没有意义。你不知道现在是几点——你的手机没有信号，也没有电了。你不知道你吃了什么——你的胃是空的，但你感觉不到饿。你不知道你睡了没有——你不记得自己闭过眼睛。' },
+    { type: 'normal', text: '你继续走。走廊。门。走廊。门。走廊。门。你已经不记得自己推开了多少扇门了。每一扇门后面的场景都开始变得模糊——你甚至不确定它们是不是真实的。也许你只是在原地转圈。也许你根本没有在移动。也许你早就倒在了走廊的某个角落，这一切只是你临死前的幻觉。' },
+    { type: 'narration', text: '但你没有倒下。你还活着。也许这就是诅咒的全部——不是死亡，而是一段永远不会结束的行走。你会永远走在这些走廊里，推开永远不会通向出口的门，被永远不会停止的脚步声追逐。' },
+    { type: 'normal', text: '身后的脚步声停了。你终于敢回头看了一眼。' },
+    { type: 'narration', text: '什么都没有。走廊空荡荡的。蜡烛在墙壁上安静地燃烧。' },
+    { type: 'normal', text: '但你知道它还在。它在某个你看不到的角落，在某个你走过的岔路口，在某个你忘记的门后面。它会一直在那里。它会一直跟着你。直到你成为它的一部分。' },
+    { type: 'divider' },
+    { type: 'narration', text: '很久以后。走廊的墙壁上多了一行新的字迹。用指甲刮出来的，笔画歪歪扭扭——' },
+    { type: 'dialogue', cls: 'unknown', speaker: '[墙上的字]', text: '"不要回头。"' },
+    { type: 'narration', text: '第六个人留下了这条警告。也许不是最后一个。' }
+  ]
+};
+
+// ===================================================================
+// INIT
+// ===================================================================
+renderScene('entrance');
+
+</script>
+</body>
+</html>

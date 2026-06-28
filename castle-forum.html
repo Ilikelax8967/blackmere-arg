@@ -600,73 +600,12 @@
       overflow: hidden;
     }
 
-    .possession-overlay {
-      position: fixed;
-      inset: 0;
-      z-index: 200;
-      display: none;
-      place-items: center;
-      padding: 22px;
-      background: rgba(0,0,0,0.18);
-      color: #ff2020;
-      overflow: hidden;
-      pointer-events: auto;
-    }
-
-    .possession-overlay.show {
-      display: grid;
-      animation: darkReturn 5.6s ease forwards;
-    }
-
-    .possession-wall {
-      position: absolute;
-      inset: -20px;
-      font-size: clamp(18px, 3.2vw, 34px);
-      font-weight: 950;
-      line-height: 1.35;
-      letter-spacing: 0.1em;
-      word-break: break-all;
-      text-shadow: 0 0 12px rgba(255,0,0,0.95);
-      opacity: 0.92;
-      animation: textCrawl 0.22s steps(2, end) infinite;
-    }
-
-    .possession-center {
-      position: relative;
-      z-index: 2;
-      max-width: 760px;
-      text-align: center;
-      color: #fff0f0;
-      font-size: clamp(28px, 6vw, 68px);
-      font-weight: 950;
-      letter-spacing: 0.1em;
-      text-shadow: 0 0 26px #ff0000, 3px 0 0 #7a0000;
-      animation: centerThreat 0.55s ease-in-out infinite alternate;
-    }
-
     @keyframes forumShake {
       0% { transform: translate(0,0) rotate(0); }
       25% { transform: translate(-9px, 6px) rotate(-0.8deg); }
       50% { transform: translate(8px, -7px) rotate(0.8deg); }
       75% { transform: translate(-5px, -4px) rotate(-0.4deg); }
       100% { transform: translate(6px, 5px) rotate(0.5deg); }
-    }
-
-    @keyframes textCrawl {
-      from { transform: translateX(-8px); opacity: 0.68; }
-      to { transform: translateX(8px); opacity: 1; }
-    }
-
-    @keyframes centerThreat {
-      from { transform: scale(0.96); opacity: 0.78; }
-      to { transform: scale(1.06); opacity: 1; }
-    }
-
-    @keyframes darkReturn {
-      0%, 45% { background: rgba(0,0,0,0.18); opacity: 1; }
-      70% { background: #000; opacity: 1; }
-      88% { background: #000; opacity: 1; }
-      100% { background: rgba(0,0,0,0); opacity: 0; }
     }
 
     @media (max-width: 860px) {
@@ -904,12 +843,6 @@
   </div>
 
   <div id="toast" class="toast">这个入口打不开。</div>
-  <div id="possessionOverlay" class="possession-overlay" aria-hidden="true">
-    <div id="possessionWall" class="possession-wall"></div>
-    <div class="possession-center">我会永远在你身边<br>你永远不会离开我</div>
-  </div>
-  <audio id="forumWechatSound" src="assets/sounds/wechat-message.mp3" preload="auto"></audio>
-
   <script>
     const input = document.getElementById("searchInput");
     const searchBtn = document.getElementById("searchBtn");
@@ -922,16 +855,12 @@
     const dmBody = document.getElementById("dmBody");
     const replyArea = document.getElementById("replyArea");
     const helloChoice = document.getElementById("helloChoice");
-    const possessionOverlay = document.getElementById("possessionOverlay");
-    const possessionWall = document.getElementById("possessionWall");
-    const forumWechatSound = document.getElementById("forumWechatSound");
     const dmHead = document.querySelector(".dm-head");
 
     let dmStarted = false;
     let dmSequenceStarted = false;
     let dmIndex = 0;
     let finalTriggered = false;
-    const threatPhrase = "我会永远在你身边，你永远不会离开我";
     const dmSequence = [
       { text: "你好？是有什么事情吗？", who: "other" },
       { text: "我想了解一下你朋友的事情，请问方便吗？", who: "me" },
@@ -983,15 +912,6 @@
       dmBody.scrollTop = dmBody.scrollHeight;
     }
 
-    function playForumWechatSound() {
-      try {
-        const sound = forumWechatSound.cloneNode(true);
-        sound.volume = 0.8;
-        const playResult = sound.play();
-        if (playResult && typeof playResult.catch === "function") playResult.catch(() => {});
-      } catch (error) {}
-    }
-
     function showNextDmMessage() {
       if (!dmSequenceStarted || finalTriggered) return;
       const item = dmSequence[dmIndex];
@@ -1021,38 +941,13 @@
     }
 
     function startForumPossession() {
-      const repeated = `${threatPhrase} `.repeat(120);
-      possessionWall.textContent = repeated;
       document.body.classList.add("forum-shake");
-      possessionOverlay.classList.add("show");
-      document.querySelectorAll(".msg").forEach(msg => {
-        msg.textContent = threatPhrase;
-      });
-
       setTimeout(() => {
         document.body.classList.remove("forum-shake");
-        possessionOverlay.classList.remove("show");
-        dmHead.textContent = "私聊：？？？";
-        crumbText.textContent = "当前位置：旧城区论坛 > 私聊 > ？？？";
-        document.querySelectorAll(".msg").forEach(msg => {
-          msg.textContent = "？？？";
-        });
-      }, 2600);
-
-      const bursts = ["？？？", "？？？？？", "？？？？？？？？", "？？？？？？？？？？？？", "？？？？？？？？？？？？？？？？？？"];
-      bursts.forEach((text, index) => {
-        setTimeout(() => {
-          addMsg(text, "other");
-        }, 4000 + index * Math.max(160, 620 - index * 110));
-      });
-
-      setTimeout(() => {
-        playForumWechatSound();
-      }, 5750);
-
+      }, 2000);
       setTimeout(() => {
         window.location.href = "arg-phone-prototype.html?afterForum=1&silentNotice=1";
-      }, 6100);
+      }, 2000);
     }
 
     searchBtn.addEventListener("click", runSearch);
