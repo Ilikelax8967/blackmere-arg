@@ -1828,7 +1828,7 @@
         messages: [
           ["time", "2026/10/1 12:01"],
           ["other", "我靠，刚开完会。"],
-          ["other", "这个傻逼老板，加班就算了，加完班居然还要开会，饿死了，中午点啥吃没？"],
+          ["other", "这个傻逼老板，加班就算了，加完班居然还要开会，真是死妈了。"],
           ["other", "饿死了，中午点啥吃没？"],
           ["me", "太惨了哈哈哈哈"],
           ["me", "我这边新开了家麻辣烫，评分还挺高的，要不要给你带一份？"],
@@ -1882,6 +1882,7 @@
           ["other", "没想到能在这里遇到你呢"],
           ["me", "我也没想到能在这种小酒馆遇到你。"],
           ["other", "你怎么了，身边有苏晓这种大美女，存款还跟身份证一样长。"],
+          ["other", "两个人都还是集团公子和小姐呢"],
           ["me", "哈哈哈，哪有"],
           ["me", "最近忙着想新内容呢，所以有点莫名其妙的压力"],
           ["other", "欸，你还在弄那些东西吗？"],
@@ -1954,7 +1955,7 @@
           ["other", "你他妈的真牛逼，你他妈的给老子等着"],
           ["me", "我真的有事。"],
           ["other", "你除了你那些死妈的照片还有他妈的什么逼事？"],
-          ["me", "你怎么知道？"],
+          ["me", "你别这样"],
           ["other", "操你妈，在你心里到底把我放在什么位置？"],
           ["time", "今天 22:01"],
           ["other", "陈陌都和我说了你要去古堡的事情。"],
@@ -2432,7 +2433,7 @@
         requestAnimationFrame(() => {
           messagesEl.scrollTop = messagesEl.scrollHeight;
         });
-      }, 450);
+      }, 0);
     }
 
     function showReplyChoices(mode, choices) {
@@ -2540,7 +2541,7 @@
           link.href = options.linkUrl;
           link.target = "_blank";
           link.rel = "noopener";
-          link.textContent = "进入论坛";
+          link.textContent = "旧城区论坛";
           bubble.appendChild(label);
           bubble.appendChild(link);
         } else {
@@ -2584,8 +2585,8 @@
       hideReplyChoices();
 
       let quotedText = "";
-      if (choiceText === "。。。") {
-        appendChatLine("one", "me", "......", { listTime: "22:10" });
+      if (choiceText === "。。。。。。") {
+        appendChatLine("one", "me", "。。。。。。", { listTime: "22:10" });
         window.setTimeout(() => {
           quotedText = "那你去找一下关于古堡的东西吧。";
           appendChatLine("one", "me", quotedText, { listTime: "22:10" });
@@ -2624,7 +2625,7 @@
         requestAnimationFrame(() => {
           scrollMessagesToBottom(6);
         });
-      }, 700);
+      }, 0);
     }
 
     function completeSuChoiceScene(choiceText) {
