@@ -18,6 +18,11 @@
       background:
         linear-gradient(135deg, rgba(0,0,0,0.06), rgba(0,0,0,0.18)),
         linear-gradient(135deg, #0078d7 0%, #0063b1 46%, #003b78 100%);
+      transition: filter 2.5s ease;
+    }
+
+    body.darkening {
+      filter: brightness(0.5) saturate(0.4) contrast(1.1);
     }
 
     .desktop {
@@ -47,7 +52,7 @@
       position: relative;
       z-index: 2;
       display: grid;
-      grid-template-rows: repeat(5, 86px);
+      grid-template-rows: repeat(6, 86px);
       grid-auto-flow: column;
       grid-auto-columns: 86px;
       gap: 8px 10px;
@@ -70,8 +75,7 @@
       text-shadow: 0 1px 3px rgba(0,0,0,0.78);
     }
 
-    .icon:hover,
-    .icon:focus {
+    .icon:hover, .icon:focus {
       background: rgba(255,255,255,0.16);
       outline: 1px solid rgba(255,255,255,0.25);
     }
@@ -118,13 +122,8 @@
       overflow: hidden;
     }
 
-    .window.open {
-      display: block;
-    }
-
-    .window.active {
-      z-index: 20;
-    }
+    .window.open { display: block; }
+    .window.active { z-index: 20; }
 
     .titlebar {
       height: 32px;
@@ -166,14 +165,8 @@
       cursor: default;
     }
 
-    .controls button:hover {
-      background: #e5e5e5;
-    }
-
-    .controls .close:hover {
-      background: #e81123;
-      color: #fff;
-    }
+    .controls button:hover { background: #e5e5e5; }
+    .controls .close:hover { background: #e81123; color: #fff; }
 
     .window-body {
       height: calc(100% - 32px);
@@ -185,15 +178,8 @@
       background: #fff;
     }
 
-    .window-body h1 {
-      margin: 0 0 10px;
-      font-size: 22px;
-      color: #222;
-    }
-
-    .window-body p {
-      margin: 0 0 10px;
-    }
+    .window-body h1 { margin: 0 0 10px; font-size: 22px; color: #222; }
+    .window-body p { margin: 0 0 10px; }
 
     .doc-warning {
       margin-top: 14px;
@@ -203,10 +189,16 @@
       color: #6d0000;
     }
 
-    .browser-window {
-      min-width: 560px;
-      min-height: 360px;
+    .doc-clue {
+      margin-top: 12px;
+      padding: 10px;
+      border-left: 4px solid #2670d8;
+      background: #f0f6ff;
+      color: #1a4a8a;
     }
+
+    /* Browser */
+    .browser-window { min-width: 560px; min-height: 360px; }
 
     .browser-toolbar {
       display: grid;
@@ -222,7 +214,7 @@
       background: #fff;
       border-radius: 3px;
       font: inherit;
-      cursor: default;
+      cursor: pointer;
     }
 
     .browser-search {
@@ -249,34 +241,19 @@
       text-align: center;
     }
 
-    .search-logo {
-      margin-bottom: 16px;
-      color: #2670d8;
-      font-size: 38px;
-      font-weight: 700;
-    }
+    .search-logo { margin-bottom: 16px; color: #2670d8; font-size: 38px; font-weight: 700; }
 
-    .result {
-      padding: 12px 0;
-      border-bottom: 1px solid #e7e7e7;
-      text-align: left;
-    }
-
-    .result-title {
+    .result { padding: 12px 0; border-bottom: 1px solid #e7e7e7; text-align: left; }
+    .result-title { color: #1a0dab; font-size: 18px; margin-bottom: 4px; }
+    .result-url { color: #0b8043; font-size: 12px; }
+    .result-snippet { margin-top: 5px; color: #4d5156; line-height: 1.55; }
+    .result-link {
+      display: inline-block;
+      margin-top: 8px;
       color: #1a0dab;
-      font-size: 18px;
-      margin-bottom: 4px;
-    }
-
-    .result-url {
-      color: #0b8043;
-      font-size: 12px;
-    }
-
-    .result-snippet {
-      margin-top: 5px;
-      color: #4d5156;
-      line-height: 1.55;
+      text-decoration: underline;
+      cursor: pointer;
+      font-size: 14px;
     }
 
     .no-result {
@@ -287,6 +264,164 @@
       font-size: 16px;
     }
 
+    /* Email */
+    .email-window { min-width: 520px; min-height: 380px; }
+
+    .email-sidebar {
+      float: left;
+      width: 180px;
+      min-height: 100%;
+      border-right: 1px solid #ddd;
+      background: #f9f9f9;
+      padding: 12px 0;
+    }
+
+    .email-folder {
+      padding: 8px 14px;
+      cursor: pointer;
+      font-size: 13px;
+      color: #333;
+      border: 0;
+      background: transparent;
+      text-align: left;
+      width: 100%;
+      display: block;
+    }
+
+    .email-folder:hover { background: #e8e8e8; }
+    .email-folder.active { background: #d4e6ff; font-weight: 700; }
+    .email-folder.unread::after {
+      content: attr(data-count);
+      float: right;
+      background: #e64b3f;
+      color: #fff;
+      font-size: 11px;
+      padding: 1px 6px;
+      border-radius: 999px;
+    }
+
+    .email-list {
+      margin-left: 180px;
+      padding: 0;
+    }
+
+    .email-item {
+      padding: 12px 14px;
+      border-bottom: 1px solid #eee;
+      cursor: pointer;
+      background: #fff;
+    }
+
+    .email-item:hover { background: #f5f8ff; }
+    .email-item.read { color: #888; }
+    .email-item.unread { font-weight: 700; background: #f0f6ff; }
+
+    .email-subject { font-size: 14px; margin-bottom: 3px; }
+    .email-from { font-size: 12px; color: #666; }
+    .email-date { font-size: 11px; color: #999; float: right; }
+
+    .email-detail {
+      display: none;
+      padding: 20px;
+    }
+
+    .email-detail.show { display: block; }
+
+    .email-detail-subject { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+    .email-detail-meta { font-size: 13px; color: #666; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #ddd; }
+    .email-detail-body { font-size: 14px; line-height: 1.8; }
+    .email-detail-body p { margin: 0 0 12px; }
+
+    /* Glitch overlay */
+    .glitch-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 500;
+      display: none;
+      place-items: center;
+      background: rgba(0,0,0,0.92);
+      color: #ff2020;
+      overflow: hidden;
+      pointer-events: auto;
+    }
+
+    .glitch-overlay.show { display: grid; }
+
+    .glitch-text {
+      position: relative;
+      z-index: 2;
+      font-size: clamp(24px, 4vw, 52px);
+      font-weight: 900;
+      text-align: center;
+      line-height: 1.5;
+      letter-spacing: 0.08em;
+      text-shadow: 0 0 20px rgba(255,0,0,0.8), 3px 0 0 #6a0000;
+      animation: glitchPulse 0.5s infinite alternate;
+      max-width: 90%;
+    }
+
+    .glitch-wall {
+      position: absolute;
+      inset: -30px;
+      font-size: 20px;
+      font-weight: 900;
+      line-height: 1.35;
+      letter-spacing: 0.1em;
+      word-break: break-all;
+      text-shadow: 0 0 10px rgba(255,0,0,0.8);
+      opacity: 0.7;
+      animation: textCrawl 0.22s steps(2, end) infinite;
+    }
+
+    @keyframes glitchPulse {
+      from { opacity: 0.65; transform: translate(-2px, 1px) scale(0.98); }
+      to { opacity: 1; transform: translate(2px, -1px) scale(1.02); }
+    }
+
+    @keyframes textCrawl {
+      from { transform: translateX(-8px); opacity: 0.5; }
+      to { transform: translateX(8px); opacity: 0.85; }
+    }
+
+    /* Notification popup on desktop */
+    .desktop-notification {
+      position: fixed;
+      right: 20px;
+      bottom: 60px;
+      width: 320px;
+      padding: 16px;
+      background: rgba(30,30,30,0.95);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 8px;
+      color: #fff;
+      font-size: 14px;
+      z-index: 200;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      pointer-events: none;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    }
+
+    .desktop-notification.show {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    .desktop-notification-title {
+      font-weight: 700;
+      margin-bottom: 6px;
+      font-size: 15px;
+    }
+
+    .desktop-notification-body {
+      color: rgba(255,255,255,0.8);
+      line-height: 1.5;
+    }
+
+    /* Taskbar */
     .taskbar {
       position: fixed;
       left: 0;
@@ -301,8 +436,7 @@
       z-index: 100;
     }
 
-    .task-left,
-    .task-right {
+    .task-left, .task-right {
       display: flex;
       align-items: center;
       height: 100%;
@@ -339,10 +473,7 @@
       cursor: default;
     }
 
-    .task-app:hover,
-    .start:hover {
-      background: rgba(255,255,255,0.12);
-    }
+    .task-app:hover, .start:hover { background: rgba(255,255,255,0.12); }
 
     .clock {
       padding: 0 12px;
@@ -359,14 +490,10 @@
         width: calc(100% - 36px) !important;
         min-width: 0;
       }
-
-      .browser-window {
-        min-width: 0;
-      }
-
-      .task-search {
-        display: none;
-      }
+      .browser-window { min-width: 0; }
+      .task-search { display: none; }
+      .email-sidebar { width: 120px; }
+      .email-list { margin-left: 120px; }
     }
   </style>
 </head>
@@ -385,32 +512,39 @@
         <img src="assets/desktop/document.png" alt="文档图标">
         <span class="icon-label">古堡记录.txt</span>
       </button>
-      <button class="icon" data-open-window="binWindow" type="button">
-        <img src="assets/desktop/recycle-bin.png" alt="回收站图标">
-        <span class="icon-label">回收站</span>
-      </button>
       <button class="icon" data-open-window="browserWindow" type="button">
         <span class="browser-icon">e</span>
         <span class="icon-label">浏览器</span>
       </button>
+      <button class="icon" data-open-window="emailWindow" type="button">
+        <span style="width:42px;height:42px;border-radius:8px;display:grid;place-items:center;background:linear-gradient(145deg,#5f9eff,#2b6fd4);color:#fff;font-size:20px;font-weight:800;box-shadow:0 4px 10px rgba(0,0,0,0.25);">✉</span>
+        <span class="icon-label">邮件</span>
+      </button>
+      <button class="icon" data-open-window="binWindow" type="button">
+        <img src="assets/desktop/recycle-bin.png" alt="回收站图标">
+        <span class="icon-label">回收站</span>
+      </button>
     </section>
 
-    <section id="docWindow" class="window" style="left:180px;top:84px;width:520px;height:390px;" aria-label="古堡记录文档窗口">
+    <!-- 古堡记录文档 -->
+    <section id="docWindow" class="window" style="left:180px;top:84px;width:520px;height:420px;">
       <div class="titlebar">
         <span class="titlebar-title"><img src="assets/desktop/document.png" alt="">古堡记录.txt - 记事本</span>
         <div class="controls"><button>—</button><button>□</button><button class="close" data-close>×</button></div>
       </div>
-      <div class="window-body">
+      <div class="window-body" id="docBody">
         <h1>古堡记录</h1>
         <p>连接来源：男主手机 / 公众号异常链接。</p>
         <p>目前可确认：城北古堡、西侧温室、地下楼梯、灰色门、疑似 B 字编号。</p>
         <p>论坛缓存中多次出现同一句话：我会永远在你身边，你永远不会离开我。</p>
         <p>浏览器可以继续检索关键词。不是所有关键词都会返回结果。</p>
         <div class="doc-warning">建议先搜索和古堡相关的关键词，逐步确认主线任务入口。</div>
+        <div id="docClues"></div>
       </div>
     </section>
 
-    <section id="browserWindow" class="window browser-window" style="left:250px;top:112px;width:690px;height:460px;" aria-label="浏览器窗口">
+    <!-- 浏览器 -->
+    <section id="browserWindow" class="window browser-window" style="left:250px;top:112px;width:700px;height:480px;">
       <div class="titlebar">
         <span class="titlebar-title"><span class="browser-icon" style="width:16px;height:16px;font-size:11px;">e</span>浏览器</span>
         <div class="controls"><button>—</button><button>□</button><button class="close" data-close>×</button></div>
@@ -425,45 +559,84 @@
         <div class="search-home">
           <div class="search-logo">旧网搜索</div>
           <p>输入关键词，查找被缓存的旧页面。</p>
+          <p style="color:#888;font-size:13px;margin-top:12px;">部分页面已被清除，只有特定关键词能触发缓存。</p>
         </div>
       </div>
     </section>
 
-    <section id="pcWindow" class="window" style="left:220px;top:120px;width:460px;height:300px;" aria-label="此电脑窗口">
+    <!-- 邮件 -->
+    <section id="emailWindow" class="window email-window" style="left:200px;top:100px;width:640px;height:440px;">
+      <div class="titlebar">
+        <span class="titlebar-title">✉ 邮件</span>
+        <div class="controls"><button>—</button><button>□</button><button class="close" data-close>×</button></div>
+      </div>
+      <div style="height:calc(100% - 32px);display:flex;">
+        <div class="email-sidebar">
+          <button class="email-folder active" data-folder="inbox">收件箱</button>
+          <button class="email-folder" data-folder="sent">已发送</button>
+          <button class="email-folder" data-folder="drafts">草稿</button>
+          <button class="email-folder" data-folder="spam">垃圾邮件</button>
+        </div>
+        <div class="email-list" id="emailList">
+          <!-- 动态生成 -->
+        </div>
+      </div>
+    </section>
+
+    <!-- 此电脑 -->
+    <section id="pcWindow" class="window" style="left:220px;top:120px;width:460px;height:300px;">
       <div class="titlebar">
         <span class="titlebar-title"><img src="assets/desktop/this-pc.png" alt="">此电脑</span>
         <div class="controls"><button>—</button><button>□</button><button class="close" data-close>×</button></div>
       </div>
       <div class="window-body">
         <h1>此电脑</h1>
+        <p>用户：DESKTOP-UNKNOWN</p>
         <p>本地磁盘 C:</p>
         <p>可移动设备：无</p>
-        <p>网络位置：DESKTOP-UNKNOWN</p>
+        <p style="color:#888;font-size:12px;margin-top:8px;">网络位置：DESKTOP-UNKNOWN / ？？？</p>
       </div>
     </section>
 
-    <section id="folderWindow" class="window" style="left:200px;top:140px;width:460px;height:300px;" aria-label="调查资料窗口">
+    <!-- 调查资料 -->
+    <section id="folderWindow" class="window" style="left:200px;top:140px;width:460px;height:300px;">
       <div class="titlebar">
         <span class="titlebar-title"><img src="assets/desktop/folder.png" alt="">调查资料</span>
         <div class="controls"><button>—</button><button>□</button><button class="close" data-close>×</button></div>
       </div>
-      <div class="window-body">
+      <div class="window-body" id="folderBody">
         <h1>调查资料</h1>
         <p>文件夹为空，或内容已被隐藏。</p>
+        <p style="color:#888;font-size:12px;">提示：在浏览器中找到更多线索后，此文件夹可能会更新。</p>
+        <div id="folderClues"></div>
       </div>
     </section>
 
-    <section id="binWindow" class="window" style="left:240px;top:160px;width:420px;height:260px;" aria-label="回收站窗口">
+    <!-- 回收站 -->
+    <section id="binWindow" class="window" style="left:240px;top:160px;width:420px;height:260px;">
       <div class="titlebar">
         <span class="titlebar-title"><img src="assets/desktop/recycle-bin.png" alt="">回收站</span>
         <div class="controls"><button>—</button><button>□</button><button class="close" data-close>×</button></div>
       </div>
-      <div class="window-body">
+      <div class="window-body" id="binBody">
         <h1>回收站</h1>
         <p>此文件夹为空。</p>
+        <div id="binClues"></div>
       </div>
     </section>
   </main>
+
+  <!-- Glitch overlay -->
+  <div id="glitchOverlay" class="glitch-overlay" aria-hidden="true">
+    <div id="glitchWall" class="glitch-wall"></div>
+    <div id="glitchText" class="glitch-text"></div>
+  </div>
+
+  <!-- Desktop notification -->
+  <div id="desktopNotif" class="desktop-notification">
+    <div id="desktopNotifTitle" class="desktop-notification-title"></div>
+    <div id="desktopNotifBody" class="desktop-notification-body"></div>
+  </div>
 
   <footer class="taskbar">
     <div class="task-left">
@@ -471,20 +644,22 @@
       <div class="task-search">在这里输入你要搜索的内容</div>
       <button class="task-app" data-open-window="folderWindow" type="button">📁</button>
       <button class="task-app" data-open-window="browserWindow" type="button">🌐</button>
+      <button class="task-app" data-open-window="emailWindow" type="button">✉</button>
     </div>
     <div class="task-right">
-      <div class="clock">？？？<br>？？？？/??/??</div>
+      <div class="clock" id="taskClock">？？？<br>？？？？/??/??</div>
     </div>
   </footer>
 
   <script>
+    /* ===== 窗口管理 ===== */
     let topZ = 20;
     let dragTarget = null;
     let dragOffsetX = 0;
     let dragOffsetY = 0;
 
     function activateWindow(win) {
-      document.querySelectorAll(".window").forEach(item => item.classList.remove("active"));
+      document.querySelectorAll(".window").forEach(w => w.classList.remove("active"));
       win.classList.add("active");
       win.style.zIndex = String(++topZ);
     }
@@ -501,25 +676,23 @@
       if (win) win.classList.remove("open");
     }
 
-    function startDrag(event) {
-      if (event.target.closest(".controls")) return;
-      const win = event.currentTarget.closest(".window");
+    function startDrag(e) {
+      if (e.target.closest(".controls")) return;
+      const win = e.currentTarget.closest(".window");
       dragTarget = win;
       activateWindow(win);
       const rect = win.getBoundingClientRect();
-      dragOffsetX = event.clientX - rect.left;
-      dragOffsetY = event.clientY - rect.top;
+      dragOffsetX = e.clientX - rect.left;
+      dragOffsetY = e.clientY - rect.top;
       document.body.style.cursor = "move";
     }
 
-    function moveDrag(event) {
+    function moveDrag(e) {
       if (!dragTarget) return;
       const maxX = window.innerWidth - 80;
       const maxY = window.innerHeight - 70;
-      const left = Math.max(0, Math.min(maxX, event.clientX - dragOffsetX));
-      const top = Math.max(0, Math.min(maxY, event.clientY - dragOffsetY));
-      dragTarget.style.left = `${left}px`;
-      dragTarget.style.top = `${top}px`;
+      dragTarget.style.left = Math.max(0, Math.min(maxX, e.clientX - dragOffsetX)) + "px";
+      dragTarget.style.top = Math.max(0, Math.min(maxY, e.clientY - dragOffsetY)) + "px";
       dragTarget.style.right = "auto";
     }
 
@@ -528,38 +701,313 @@
       document.body.style.cursor = "";
     }
 
+    /* ===== 主线状态 ===== */
+    const state = {
+      searchedKeywords: new Set(),
+      foundClues: new Set(),
+      emailsRead: new Set(),
+      phase: 0,
+      // Phase 0: 初始，可以搜索
+      // Phase 1: 找到Blackmere/古堡核心信息
+      // Phase 2: 搜索到周祁/相框相关，邮件触发
+      // Phase 3: 搜索到B-17/灰色门，出现异常邮件
+      // Phase 4: 全部线索集齐，异常开始
+      // Phase 5: 最终解密
+      glitchPlayed: false,
+      finalGlitchPlayed: false
+    };
+
+    const CLUES = {
+      castle: {
+        id: "castle",
+        keywords: ["古堡", "城北"],
+        title: "城北古堡 - 地方志残卷",
+        url: "archive.local/city-records/castle",
+        snippet: "城北古堡，始建于清末，原为当地望族Blackmere氏族宅邸。民国时期更名为「北城公馆」。1998年因结构安全隐患封闭。2003年外地收藏家购入，翻修三个月后因施工事故停工。此后再无人员进出记录。周边居民多次反映夜间异常声响和不明光源。",
+        depth: 0
+      },
+      greenhouse: {
+        id: "greenhouse",
+        keywords: ["西侧温室", "温室"],
+        title: "古堡西侧温室 - 建筑结构报告（残缺）",
+        url: "archive.local/blackmere/structural-west",
+        snippet: "西侧温室为附属建筑，建于主楼西侧约12米处。根据2003年施工方报告，温室地面下方存在空腔结构，疑似地下室入口。施工期间，工人发现温室下方有一扇被铁板焊死的灰色铁门，门上有被刮除的编号，残存字迹疑似为「B-17」。施工队长要求禁止开启。翻修停工后，该入口再未被打开。",
+        depth: 1
+      },
+      blackmere: {
+        id: "blackmere",
+        keywords: ["blackmere", "Blackmere"],
+        title: "Blackmere氏族 - 旧城区人口档案备份",
+        url: "archive.local/census/blackmere-family",
+        snippet: "Blackmere氏族，清末由外籍人士迁入，定居城北。族长：Blackmere B.（具体名字档案中被涂抹）。该氏族以收藏画像闻名，族内规定：每位成员成年时需绘制肖像，存于主楼西侧走廊相框中。1952年该家族集体迁出，去向不明。迁出前，据邻居回忆，走廊尽头最后一幅肖像被从相框中取出。此后该房间一直上锁。2003年翻修期间，施工人员在地下室发现大量空相框，每个相框背面均刻有日期和姓名。",
+        depth: 2
+      },
+      zhouqi: {
+        id: "zhouqi",
+        keywords: ["周祁", "失踪"],
+        title: "城北古堡失踪事件 - 论坛存档汇总",
+        url: "oldbbs.cache/incident/zhouqi",
+        snippet: "失踪者周祁，男，24岁，自由摄影师。两年前10月29日凌晨独自进入城北古堡，此后失联。进入前曾向好友阿榕发送定位和照片。最后一张照片显示地下室走廊墙壁上有大量发霉相框。相框中一张肖像与周祁本人高度相似，相框底部刻有其姓名。照片EXIF信息异常：拍摄时间（01:17）早于发送时间（01:42）约25分钟。失踪后无任何银行、通讯、出行记录。案件未破。",
+        depth: 2
+      },
+      b17: {
+        id: "b17",
+        keywords: ["b-17", "B-17", "b17"],
+        title: "B-17 地下档案 - 2003年施工内部报告（机密）",
+        url: "archive.local/blackmere/underground-b17",
+        snippet: "【施工内部报告 - 禁止外传】\n报告人：施工队长 张XX\n日期：2003年8月14日\n\n关于西侧温室下方B-17号门：\n经工程队确认，B-17号门后为地下通道，深度约12米。通道尽头连接一个大型地下厅室。厅室内有大量木质相框，排列整齐，每个相框内均有肖像画。经初步清点，相框数量约为47个。\n\n异常情况：\n1. 部分相框中的肖像与失踪人员照片高度相似（已向上级报告）。\n2. 通道内空气检测异常：氧气含量低于正常值，但未检测到有毒气体。\n3. 最后一个相框为空。相框背面刻有日期：2003年8月14日（即今日）。相框下方有一行手写文字：「不要把门关上」。\n\n建议：立即停止施工，封闭B-17入口。等待进一步指示。\n\n【上级批示：同意。所有档案列为机密。B-17永久封闭。】",
+        depth: 3
+      },
+      frame: {
+        id: "frame",
+        keywords: ["相框", "画像", "肖像"],
+        title: "古堡走廊相框 - 施工现场照片记录（已损坏）",
+        url: "archive.local/blackmere/frame-photos",
+        snippet: "以下照片记录于2003年翻修期间。大部分照片文件已损坏，仅存缩略图。\n\n[照片1] 西侧走廊全景：墙上挂有约20个相框，间距一致。部分相框内画像面部被刮除。\n[照片2] 单个相框特写：画中人面部完整，为一年轻男性。相框底部刻有「林XX 1962-1987」。注：经查证，林XX于1987年在古堡附近失踪。\n[照片3] 最后一幅相框：为空。背面刻有日期，日期与发现当日相同。下方手写：「不要把门关上」。\n[照片4] 地下厅室入口：灰色铁门，可见残余编号「B-17」。\n[照片5] 地下厅室内景：约47个相框排列在四面墙上。光线极暗。\n[照片6-12] [文件损坏，无法读取]\n\n备注：所有相框中的肖像人物，经初步比对，均与不同年份的失踪人员面部特征高度匹配。匹配率最低为87%。此发现已被列为机密。",
+        depth: 3
+      },
+      door: {
+        id: "door",
+        keywords: ["不要关上", "不要把门关上", "门关上"],
+        title: "语音分析报告 - 「不要把门关上」（机密附件）",
+        url: "archive.local/blackmere/voice-analysis",
+        snippet: "分析对象：周祁最后发送的语音文件（时长4.7秒）\n分析日期：[已涂改]\n\n语音内容确认：「不要把门关上」\n\n背景分析：\n- 持续滴水声，频率约每秒1.2滴\n- 环境混响特征与封闭地下空间一致\n- 检测到第二人呼吸声：频率较低，节奏平稳，位于声场左后方约2米处\n- 呼吸者未发出任何语音\n\n结论：周祁进入B-17地下厅室时，该空间内存在另一名呼吸活体。该个体全程未发出语音，仅保持呼吸。其存在无法用已知施工人员记录解释。\n\n【附加备注：语音结束后约0.3秒，可听到极轻微的门轴声，方向为向外。即门正在被从外侧关闭。但该声音来源不明——周祁本人位于门内侧。】",
+        depth: 4
+      },
+      return: {
+        id: "return",
+        keywords: ["不要回头", "回头", "叫你名字"],
+        title: "阿榕论坛警告记录 - 关键行为准则",
+        url: "archive.local/blackmere/safety-rules",
+        snippet: "以下内容由旧城区论坛版主「阿榕」在多个帖子中的回复整理而成：\n\n「如果你们真要查，记住三件事：\n\n第一，不要从西侧温室下去。那里的入口是B-17号门，门后面不是普通地下室。那里的空气会让你犯困，但不是氧气不足——是别的东西。\n\n第二，不要碰相框。每个相框里的人都不是自愿被画上去的。我不确定那是画像还是别的什么，但周祁发来的照片里，那张和他一模一样的脸，我后来放大了无数次，发现画中人的眼睛在看着镜头。\n\n第三，不要在听见有人叫你名字的时候回头。我后来又收到了三条私信，都是去过古堡附近的人发的。他们都说听到了有人叫自己的名字，声音很熟悉，像是家人或朋友。其中两个人回了头。他们回头发给我的最后一条消息是：他也在这里。」\n\n我不知道「他」是谁。但周祁失联前，他最后一张照片的EXIF里，拍摄时间比发送时间早了25分钟。那25分钟里，相机在谁手里？\n\n如果你看到了这条信息，说明你可能快要找到B-17了。记住：不要把门关上。\n\n因为门关上以后，里面的人出不来。\n但门开着的时候——外面的人也走不掉。」",
+        depth: 4
+      }
+    };
+
+    /* ===== 邮件系统 ===== */
+    const EMAILS = [
+      {
+        id: "e1",
+        from: "林晚 <linwan_xx@mail.com>",
+        subject: "你今天到底去哪了？",
+        date: "今天 23:15",
+        body: "<p>给你打了好多电话都不接。</p><p>陈陌说他联系不上你，苏晓也说一直在找你。</p><p>你最好马上回我消息，不然我真的要去报警了。</p><p>我很担心你。</p>",
+        phase: 2,
+        unread: true
+      },
+      {
+        id: "e2",
+        from: "系统通知 <noreply@mail-system.local>",
+        subject: "异常登录提醒",
+        date: "今天 23:42",
+        body: "<p>您的邮箱账号于今天 23:41 从未知设备登录。</p><p>登录地点：无法定位</p><p>登录IP：0.0.0.0</p><p>如果这不是您本人操作，请立即修改密码。</p><p style='color:#888;font-size:12px;'>此邮件由系统自动发送，请勿回复。</p>",
+        phase: 3,
+        unread: true
+      },
+      {
+        id: "e3",
+        from: "？？？ <unknown@blackmere.local>",
+        subject: "RE: 不要把门关上",
+        date: "？？？",
+        body: "<p>你终于找到这里了。</p><p>我等了很久。</p><p>相框里的人不是画上去的。</p><p>他们都在这里。</p><p>周祁也在。</p><p>你很快也会在这里。</p><p>不要害怕。我会一直陪着你。</p><p style='color:#ff0000;font-weight:900;'>我永远在你身边，你永远不会离开我。</p>",
+        phase: 4,
+        unread: true
+      }
+    ];
+
+    /* ===== 搜索引擎 ===== */
     function runBrowserSearch() {
       const input = document.getElementById("browserSearch");
       const page = document.getElementById("browserPage");
-      const keyword = input.value.trim();
-      const normalized = keyword.toLowerCase();
+      const keyword = input.value.trim().toLowerCase();
 
       if (!keyword) {
-        page.innerHTML = `<div class="no-result">请输入关键词。</div>`;
+        page.innerHTML = '<div class="search-home"><div class="search-logo">旧网搜索</div><p>输入关键词，查找被缓存的旧页面。</p><p style="color:#888;font-size:13px;margin-top:12px;">部分页面已被清除，只有特定关键词能触发缓存。</p></div>';
         return;
       }
 
-      const hit = keyword.includes("古堡") || keyword.includes("西侧温室") || keyword.includes("blackmere") || keyword.includes("B") || normalized.includes("blackmere");
+      state.searchedKeywords.add(keyword);
+      let results = [];
+      let matchedClues = [];
 
-      if (!hit) {
-        page.innerHTML = `<div class="no-result">暂未搜索到相关信息</div>`;
+      for (const [id, clue] of Object.entries(CLUES)) {
+        const matched = clue.keywords.some(kw => keyword.includes(kw.toLowerCase()));
+        if (matched) {
+          results.push(clue);
+          matchedClues.push(id);
+        }
+      }
+
+      if (results.length === 0) {
+        page.innerHTML = '<div class="no-result">暂未搜索到相关信息<br><span style="color:#aaa;font-size:13px;">可能需要更精确的关键词。</span></div>';
         return;
       }
 
-      page.innerHTML = `
-        <div class="result">
-          <div class="result-title">Blackmere 古堡旧档案备份</div>
-          <div class="result-url">archive.local/blackmere/castle-record</div>
-          <div class="result-snippet">缓存记录显示：西侧温室下方存在通往地下结构的旧楼梯，灰色门编号疑似 B-17。</div>
-        </div>
-        <div class="result">
-          <div class="result-title">城北古堡失踪事件关键词索引</div>
-          <div class="result-url">oldbbs.cache/thread/017</div>
-          <div class="result-snippet">相关词：相框、不要回头、第二个呼吸声、门轴声、地下室。</div>
-        </div>
-      `;
+      let html = "";
+      results.forEach(clue => {
+        state.foundClues.add(clue.id);
+        html += '<div class="result">';
+        html += '<div class="result-title">' + clue.title + '</div>';
+        html += '<div class="result-url">' + clue.url + '</div>';
+        html += '<div class="result-snippet" style="white-space:pre-wrap;">' + clue.snippet.replace(/\n/g, '<br>') + '</div>';
+        html += '</div>';
+      });
+
+      page.innerHTML = html;
+      advancePhase();
     }
 
+    /* ===== 阶段推进 ===== */
+    function advancePhase() {
+      const maxDepth = Math.max(...[...state.foundClues].map(id => CLUES[id] ? CLUES[id].depth : -1), 0);
+
+      if (maxDepth >= 1 && state.phase < 1) {
+        state.phase = 1;
+        updateDocClues("greenhouse");
+        showDesktopNotif("系统提示", "检测到新的缓存文件。调查资料已更新。");
+        updateFolder();
+      }
+
+      if (maxDepth >= 2 && state.phase < 2) {
+        state.phase = 2;
+        setTimeout(() => {
+          showDesktopNotif("新邮件", "收到来自林晚的邮件。请查看邮件客户端。");
+        }, 2000);
+        addEmailToInbox(EMAILS[0]);
+      }
+
+      if (maxDepth >= 3 && state.phase < 3) {
+        state.phase = 3;
+        setTimeout(() => {
+          showDesktopNotif("安全警告", "检测到异常登录。请查看邮件。");
+        }, 1500);
+        addEmailToInbox(EMAILS[1]);
+        updateFolder();
+        updateDocClues("b17");
+      }
+
+      if (maxDepth >= 4 && state.phase < 4) {
+        state.phase = 4;
+        setTimeout(() => {
+          body.classList.add("darkening");
+          showDesktopNotif("？？？", "新邮件：RE: 不要把门关上");
+        }, 3000);
+        addEmailToInbox(EMAILS[2]);
+        setTimeout(() => {
+          if (!state.glitchPlayed) startGlitch();
+        }, 8000);
+      }
+    }
+
+    /* ===== 文档线索更新 ===== */
+    function updateDocClues(clueId) {
+      const container = document.getElementById("docClues");
+      if (!container) return;
+
+      const clueTexts = {
+        greenhouse: "【新线索】西侧温室下方存在空腔结构和B-17号门。施工方报告提到「禁止开启」。",
+        b17: "【机密档案】B-17门后为地下通道，深约12米。厅室中有47个相框，每个相框中的人与失踪人员高度匹配。最后一个相框为空，背面刻有当日日期，下方写着「不要把门关上」。"
+      };
+
+      if (clueTexts[clueId] && !document.getElementById("clue-" + clueId)) {
+        const div = document.createElement("div");
+        div.className = "doc-clue";
+        div.id = "clue-" + clueId;
+        div.textContent = clueTexts[clueId];
+        container.appendChild(div);
+      }
+    }
+
+    /* ===== 文件夹更新 ===== */
+    function updateFolder() {
+      const container = document.getElementById("folderClues");
+      if (!container) return;
+
+      if (state.foundClues.has("blackmere") && !document.getElementById("folder-clue-family")) {
+        container.innerHTML += '<p style="margin-top:12px;padding:8px;background:#f5f5f5;border-left:3px solid #333;">📄 Blackmere氏族档案.jpg — 文件已损坏</p>';
+      }
+      if (state.foundClues.has("b17") && !document.getElementById("folder-clue-report")) {
+        container.innerHTML += '<p style="margin-top:8px;padding:8px;background:#f5f5f5;border-left:3px solid #8b0000;">📄 B-17施工报告.pdf — 已被标记为机密</p>';
+      }
+    }
+
+    /* ===== 邮件系统 ===== */
+    let emailInbox = [];
+
+    function addEmailToInbox(email) {
+      emailInbox.push(email);
+      renderEmailList();
+    }
+
+    function renderEmailList() {
+      const list = document.getElementById("emailList");
+      if (!list) return;
+
+      let html = "";
+      emailInbox.forEach(email => {
+        const readClass = state.emailsRead.has(email.id) ? "read" : "unread";
+        html += '<div class="email-item ' + readClass + '" data-email-id="' + email.id + '">';
+        html += '<div class="email-subject">' + email.subject + '</div>';
+        html += '<div class="email-from">' + email.from + ' <span class="email-date">' + email.date + '</span></div>';
+        html += '</div>';
+      });
+
+      if (emailInbox.length === 0) {
+        html = '<div style="padding:40px;text-align:center;color:#aaa;">暂无邮件</div>';
+      }
+
+      list.innerHTML = html;
+
+      list.querySelectorAll(".email-item").forEach(item => {
+        item.addEventListener("click", () => {
+          const emailId = item.dataset.emailId;
+          const email = emailInbox.find(e => e.id === emailId);
+          if (!email) return;
+          state.emailsRead.add(email.id);
+          renderEmailList();
+
+          let detailHtml = '<div class="email-detail show">';
+          detailHtml += '<div class="email-detail-subject">' + email.subject + '</div>';
+          detailHtml += '<div class="email-detail-meta">来自：' + email.from + '<br>日期：' + email.date + '</div>';
+          detailHtml += '<div class="email-detail-body">' + email.body + '</div>';
+          detailHtml += '</div>';
+
+          list.innerHTML = detailHtml;
+        });
+      });
+    }
+
+    /* ===== 桌面通知 ===== */
+    function showDesktopNotif(title, body) {
+      const notif = document.getElementById("desktopNotif");
+      document.getElementById("desktopNotifTitle").textContent = title;
+      document.getElementById("desktopNotifBody").textContent = body;
+      notif.classList.add("show");
+      setTimeout(() => notif.classList.remove("show"), 6000);
+    }
+
+    /* ===== 异常故障 ===== */
+    function startGlitch() {
+      if (state.glitchPlayed) return;
+      state.glitchPlayed = true;
+
+      const overlay = document.getElementById("glitchOverlay");
+      const wall = document.getElementById("glitchWall");
+      const text = document.getElementById("glitchText");
+
+      const phrase = "我永远会在你身边，你永远不会离开我";
+      wall.textContent = (phrase + " ").repeat(80);
+
+      overlay.classList.add("show");
+
+      text.textContent = phrase + "\n\n你已经找到了所有的线索。\n相框、B-17、周祁……\n现在，轮到你了。";
+
+      setTimeout(() => {
+        overlay.classList.remove("show");
+      }, 5000);
+    }
+
+    /* ===== 初始化 ===== */
     document.querySelectorAll("[data-open-window]").forEach(btn => {
       btn.addEventListener("dblclick", () => openWindow(btn.dataset.openWindow));
       btn.addEventListener("click", () => {
@@ -578,10 +1026,14 @@
 
     document.addEventListener("mousemove", moveDrag);
     document.addEventListener("mouseup", endDrag);
+
     document.getElementById("browserSearchBtn").addEventListener("click", runBrowserSearch);
-    document.getElementById("browserSearch").addEventListener("keydown", event => {
-      if (event.key === "Enter") runBrowserSearch();
+    document.getElementById("browserSearch").addEventListener("keydown", e => {
+      if (e.key === "Enter") runBrowserSearch();
     });
+
+    // 初始邮件列表
+    renderEmailList();
   </script>
 </body>
 </html>

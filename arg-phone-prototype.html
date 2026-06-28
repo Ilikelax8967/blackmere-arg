@@ -608,6 +608,16 @@
       flex: 0 0 auto;
       position: relative;
       overflow: hidden;
+      background-size: cover;
+      background-position: center;
+    }
+
+    .avatar.has-img {
+      background-image: var(--avatar-img);
+    }
+
+    .avatar.has-img::after {
+      display: none;
     }
 
     .avatar::after {
@@ -615,6 +625,15 @@
       position: absolute;
       inset: 0;
       background: linear-gradient(135deg, rgba(255,255,255,0.28), transparent 44%);
+    }
+
+    .mini-avatar.has-img,
+    .avatar.has-img,
+    .moment-avatar.has-img {
+      background-color: transparent !important;
+      background-image: var(--avatar-img);
+      background-size: cover;
+      background-position: center;
     }
 
     .a1 { background: linear-gradient(145deg, #355c7d, #1b2b3d); }
@@ -879,10 +898,22 @@
       font-size: 13px;
       font-weight: 700;
       flex: 0 0 auto;
+      cursor: pointer;
+      background-size: cover;
+      background-position: center;
+    }
+
+    .mini-avatar:hover {
+      filter: brightness(1.15);
+      box-shadow: 0 0 6px rgba(0,0,0,0.2);
     }
 
     .me .mini-avatar {
-      background: linear-gradient(145deg, #2c3e50, #111923);
+      background: url('assets/avatars/mc.jpg') center / cover no-repeat;
+    }
+
+    .me .mini-avatar.has-img {
+      background: url('assets/avatars/mc.jpg') center / cover no-repeat;
     }
 
     .bubble {
@@ -1025,6 +1056,123 @@
 
     .reply-choice:active {
       background: #f1f1f1;
+    }
+
+    .moments-view {
+      background: #ededed;
+      color: var(--text-dark);
+      overflow: hidden;
+    }
+
+    .moments-cover {
+      position: relative;
+      height: 180px;
+      overflow: hidden;
+    }
+
+    .moments-cover-bg {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(145deg, #1a2a3a, #0d1b2a);
+    }
+
+    .moments-cover-name {
+      position: absolute;
+      right: 16px;
+      bottom: 14px;
+      color: #fff;
+      font-size: 18px;
+      font-weight: 700;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.6);
+      z-index: 3;
+    }
+
+    .moments-scroll {
+      position: absolute;
+      top: 84px;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .moments-list {
+      padding: 0 0 20px;
+      background: #fff;
+    }
+
+    .moment-item {
+      padding: 14px 14px 10px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .moment-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .moment-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 6px;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-weight: 700;
+      font-size: 16px;
+      background-size: cover;
+      background-position: center;
+    }
+
+    .moment-avatar:hover {
+      filter: brightness(1.1);
+    }
+
+    .moment-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: #576b95;
+    }
+
+    .moment-text {
+      margin-left: 50px;
+      font-size: 14px;
+      line-height: 1.6;
+      color: #333;
+      margin-bottom: 8px;
+    }
+
+    .moment-image {
+      margin-left: 50px;
+      width: 180px;
+      height: auto;
+      max-height: 200px;
+      border-radius: 6px;
+      object-fit: cover;
+      margin-bottom: 8px;
+      cursor: default;
+    }
+
+    .moment-image-emoji {
+      margin-left: 50px;
+      width: 160px;
+      height: 120px;
+      border-radius: 6px;
+      display: grid;
+      place-items: center;
+      font-size: 40px;
+      color: rgba(255,255,255,0.8);
+      margin-bottom: 8px;
+    }
+
+    .moment-time {
+      margin-left: 50px;
+      font-size: 12px;
+      color: #b0b0b0;
     }
 
     .article-view {
@@ -1326,7 +1474,7 @@
           <div class="home-content">
             <div class="date-block">
               <div class="time" id="bigTime">22:10</div>
-              <div class="date" id="homeDate">10月31日 星期五</div>
+              <div class="date" id="homeDate">10月18日 星期日</div>
             </div>
 
             <div class="apps" aria-label="应用列表">
@@ -1398,7 +1546,7 @@
 
           <div class="chat-list">
             <button class="chat-item" data-chat="one">
-              <span class="avatar a1">陈</span>
+              <span class="avatar a1 has-img" style="--avatar-img:url('assets/avatars/chen.jpg')"> </span>
               <span class="chat-meta">
                 <span class="chat-name-row">
                   <span class="chat-name">陈陌</span>
@@ -1410,7 +1558,7 @@
             </button>
 
             <button class="chat-item" data-chat="two">
-              <span class="avatar a2">林</span>
+              <span class="avatar a2 has-img" style="--avatar-img:url('assets/avatars/lin.jpg')"> </span>
               <span class="chat-meta">
                 <span class="chat-name-row">
                   <span class="chat-name">林晚</span>
@@ -1422,7 +1570,7 @@
             </button>
 
             <button class="chat-item" data-chat="three">
-              <span class="avatar a3">苏</span>
+              <span class="avatar a3 has-img" style="--avatar-img:url('assets/avatars/su.jpg')"> </span>
               <span class="chat-meta">
                 <span class="chat-name-row">
                   <span class="chat-name">苏晓</span>
@@ -1437,7 +1585,7 @@
               <span class="avatar group-avatar">群</span>
               <span class="chat-meta">
                 <span class="chat-name-row">
-                  <span class="chat-name">周末约饭小分队</span>
+                  <span class="chat-name">周末约饭小分队(8)</span>
                   <span class="chat-time">19:40</span>
                 </span>
                 <span class="chat-preview">明天谁有空？</span>
@@ -1449,7 +1597,7 @@
               <span class="avatar group-avatar">群</span>
               <span class="chat-meta">
                 <span class="chat-name-row">
-                  <span class="chat-name">大学同学摸鱼群</span>
+                  <span class="chat-name">大学同学摸鱼群(40)</span>
                   <span class="chat-time">18:12</span>
                 </span>
                 <span class="chat-preview">有人打游戏吗</span>
@@ -1461,7 +1609,7 @@
               <span class="avatar group-avatar">群</span>
               <span class="chat-meta">
                 <span class="chat-name-row">
-                  <span class="chat-name">视频账号素材讨论</span>
+                  <span class="chat-name">视频账号素材讨论(12)</span>
                   <span class="chat-time">昨天</span>
                 </span>
                 <span class="chat-preview">下期标题再想想</span>
@@ -1469,7 +1617,7 @@
               <span></span>
             </button>
 
-            <button class="chat-item" id="localNewsItem" data-news="castle" hidden>
+            <button class="chat-item" id="localNewsItem" data-news="castle">
               <span class="avatar news-avatar">闻</span>
               <span class="chat-meta">
                 <span class="chat-name-row">
@@ -1488,6 +1636,25 @@
             <button class="tab" data-tab-locked="true"><span class="tab-symbol">◇</span><span>发现</span></button>
             <button class="tab" data-tab-locked="true"><span class="tab-symbol">▢</span><span>我</span></button>
           </nav>
+        </section>
+
+        <section id="momentsView" class="view moments-view" aria-label="朋友圈">
+          <div class="wechat-top">
+            <div class="chat-title-wrap">
+              <button class="back" id="backFromMoments" aria-label="返回">‹</button>
+              <h1 id="momentsTitle">朋友圈</h1>
+            </div>
+            <div class="top-actions" aria-hidden="true">
+              <span>📷</span>
+            </div>
+          </div>
+          <div class="moments-scroll">
+            <div class="moments-cover">
+              <div class="moments-cover-bg"></div>
+              <span class="moments-cover-name" id="momentsCoverName"></span>
+            </div>
+            <div class="moments-list" id="momentsList"></div>
+          </div>
         </section>
 
         <section id="chatView" class="view chat-view" aria-label="聊天记录">
@@ -1555,7 +1722,7 @@
 
             <p>这就是关于古堡最广为流传的说法</p>
 
-            <p>这些传闻大多无法证实。古堡目前仍处于封闭状态，外围铁门和主楼入口均有警示标识。请勿擅自进入危险区域，更不要为了猎奇尝试翻越围栏。</p>
+            <p>这些传闻大多无法证实。古堡目前仍处于封闭状态，外围铁门和主楼入口均有警示标识。<strong>请勿擅自进入危险区域，更不要为了猎奇尝试翻越围栏。</strong></p> 
 
             <div class="article-note"></div>
             <a id="mysteryArticleLink" class="mystery-link" href="mystery-site.html" hidden>？？？</a>
@@ -1596,6 +1763,7 @@
   <script>
     const homeView = document.getElementById("homeView");
     const wechatView = document.getElementById("wechatView");
+    const momentsView = document.getElementById("momentsView");
     const chatView = document.getElementById("chatView");
     const articleView = document.getElementById("articleView");
     const messagesEl = document.getElementById("messages");
@@ -1618,7 +1786,6 @@
     const chatTransitionOverlay = document.getElementById("chatTransitionOverlay");
     const chatTransitionText = document.getElementById("chatTransitionText");
     const SU_PLAN_MESSAGE = "陈陌都跟我说了，不管怎么说我也是你女朋友，我要和你一起去。";
-
     const storyState = {
       seenChats: new Set(),
       publicNoticeShown: false,
@@ -1655,43 +1822,104 @@
         title: "陈陌",
         avatar: "陈",
         avatarClass: "a1",
+        avatarImg: "assets/avatars/chen.jpg",
         date: "昨天 20:12",
         listTime: "昨天",
         messages: [
-          ["other", "你那个视频账号还打算继续做？最近不是没素材了吗。"],
-          ["me", "所以才找你商量。普通探店没流量，想做点恐怖素材。"],
-          ["other", "别又去废楼，太多人拍过了。"],
-          ["me", "我知道。要找那种有传闻、没人敢进去、最好还能拍出故事感的地方。"],
-          ["other", "你说得轻松，哪里有这种地方。"],
-          ["me", "有。城北那座很有名的古堡，你听过吧？"],
-          ["other", "那地方不是封了吗？"],
-          ["me", "封是封了，但应该能绕进去。里面传过好几个版本，失踪、地下室、旧主人，够用了。"],
-          ["other", "你确定不是为了作死？"],
-          ["me", "只是拍素材。进去看看就走。"],
-          ["other", "可以，那就古堡。你确定那地方能进去？"],
-          ["me", "明晚见面说。别告诉其他人。"]
+          ["time", "2026/10/1 12:01"],
+          ["other", "我靠，刚开完会。"],
+          ["other", "这个傻逼老板，加班就算了，加完班居然还要开会，饿死了，中午点啥吃没？"],
+          ["other", "饿死了，中午点啥吃没？"],
+          ["me", "太惨了哈哈哈哈"],
+          ["me", "我这边新开了家麻辣烫，评分还挺高的，要不要给你带一份？"],
+          ["other", "算了算了，麻辣烫早就吃腻了。"],
+          ["other", "我随便吃点应付了吧，这傻逼老板不知道下午还要搞什么东西呢。"],
+          ["time", "2026/10/1 13:57"],
+          ["me", "行吧行吧。"],
+          ["time", "2026/10/5 16:23"],
+          ["other", "昨天熬夜看了场球赛，给我看爽了都。"],
+          ["other", "你最近干嘛呢在？"],
+          ["time", "2026/10/5 16:33"],
+          ["me", "嗯，我爸那车有点毛病，回去帮他弄一下。"],
+          ["time", "2026/10/15 16:40"],
+          ["me", "你还记得林晚吗？"],
+          ["me", "我前几天碰到她了。"],
+          ["time", "2026/10/15 16:37"],
+          ["other", "哪个林晚？你女朋友那个闺蜜？"],
+          ["me", "嗯，对"],
+          ["time", "2026/10/15 16:40"],
+          ["other", "没想到她们俩这么多年关系还是这么好。对了，她怎么样？"],
+          ["me", "也就那样，我听苏晓说她们已经很久没联系了。"],
+          ["me", "但是她对我研究的这方面东西好像很感兴趣。"],
+          ["other", "你不是平时就拍些照片吗？还有那些看上去就挺恐怖的东西。"],
+          ["me", "拍着玩玩的。你看到那个古堡的"],
+          ["me", "对了，你看到关于古堡的新闻没有？"],
+          ["me", "我感觉那个可以去深度了解下。"],
+          ["other", "你说的这个我看到过，我也觉得那个挺诡异的"],
+          ["other", "但是感觉有点意思"],
+          ["me", "那你要去吗？"],
+          ["other", "可以"],
+          ["other", "但是..."],
+          ["other", "你确定那地方能进去？"],
+          ["me", "这个东西我还要调查一下"],
+          ["me", "找一下这方面的消息咯"],
+          ["other", "好，那我也去找一下吧啊"],
+          ["me", "记得见面说。别告诉其他人。"],
+          ["time", "今天 22:25"],
+          ["other", "明天就准备出发了，你准备好了没"],
         ]
       },
       two: {
         title: "林晚",
         avatar: "林",
         avatarClass: "a2",
+        avatarImg: "assets/avatars/lin.jpg",
         date: "今天 22:03",
         listTime: "22:03",
         messages: [
-          ["other", "宝宝今天怎么样。"],
-          ["me", "感觉好累啊。"],
-          ["other", "抱抱你宝宝"],
-          ["me", "在讨论要去拍什么素材"],
-          ["other", "宝宝我也要去"],
-          ["me", "可是这次可能会有点危险。"],
-          ["other", "不管，我要和你一起"],
+          ["time", "2026/10/12 21:32"],
+          ["other", "我通过了你的朋友验证请求，现在我们可以聊天了"],
+          ["other", "没想到能在这里遇到你呢"],
+          ["me", "我也没想到能在这种小酒馆遇到你。"],
+          ["other", "你怎么了，身边有苏晓这种大美女，存款还跟身份证一样长。"],
+          ["me", "哈哈哈，哪有"],
+          ["me", "最近忙着想新内容呢，所以有点莫名其妙的压力"],
+          ["other", "欸，你还在弄那些东西吗？"],
+          ["me", "对啊，我实在不想去管理我爸底下那群员工，不仅毁人缘而且还没有自己的时间..."],
+          ["other", "我很早之前就喜欢你拍的那些照片了，虽然其他人看着有点恐怖吧..."],
+          ["other", "但是我觉得这是一种艺术。可惜一直没什么机会说出来"],
+          ["me", "真的吗？？？"],
+          ["other", "真的呀！我感觉这些东西挺有意思的。"],
+          ["me", "唉，我弄这些苏晓只会说我不务正业。"],
+          ["other", "我知道苏晓她的性格，她不太喜欢恐怖的东西。"],
+          ["other", "她这样也正常呢"],
+          ["me", "没想到还是有人懂我的"],
+          ["other", "嘻嘻❤"],
+          ["time", "2026/10/15 18:43"],
+          ["other", "hello"],
+          ["other", "今天怎么样。"],
+          ["me", "我找到了个新的地方"],
+          ["other", "什么地方？"],
+          ["me", "你看到那个新闻了吗？就是关于古堡那个"],
+          ["other", "噢，那个我知道，好早之前就听说过了"],
+          ["me", "我打算进去探索一下"],
+          ["other", "那里光是听传说就很危险的呀"],
+          ["me", "应该没传说那么邪吧..."],
+          ["me", "再说我也去过这么多地方，就这一个小小的古堡应该没什么大事。"],
+          ["other", "emmmm..."],
+          ["other", "我想要和你一起去，可以吗"],
+          ["me", "你能抗的住吗？我有点担心。"],
+          ["other", "我没事的，我也很想去看看到底有没有传说中这么邪乎。"],
           ["me", " 嗯...好吧"],
-          ["other", "她要去吗"],
-          ["me", " 我没和她说"],
+          ["other", "就我们两个去吗？"],
+          ["me", "还有陈陌，你应该还记得他"],
+          ["other", "苏晓应该不去吧"],
+          ["me", "我去问问她"],
+          ["other", "好吧......"],
           ["time", "今天 22:25"],
-          ["other", "我想你了"],
-          ["me", "……我知道"],
+          ["other", "明天就要出发了"],
+          ["other", "她要去吗"],
+          ["me", "我不知道"],
           ["other", "那你打算怎么办？"],
           ["me", "不知道。"],
           ["other", "算了，问你也没用"],
@@ -1703,29 +1931,136 @@
         title: "苏晓",
         avatar: "苏",
         avatarClass: "a3",
+        avatarImg: "assets/avatars/su.jpg",
         date: "今天 20:48",
         listTime: "21:48",
         messages: [
-          ["other", "今晚还不回来？"],
-          ["me", "要和朋友讨论拍摄。"],
-          ["other", "你现在每天除了拍摄还有别的吗？"],
-          ["me", "这对我很重要。"],
-          ["other", "我以前也觉得你会把我放在很重要的位置。"],
+          ["time", "2026/10/12 20:47"],
+          ["other", "在干什么呢？"],
+          ["other", "这么晚还不回来？"],
+          ["me", "在忙呢。"],
+          ["other", "你忙什么啊？你有什么可忙的？"],
+          ["other", "你他妈除了每天拍那些猎奇恐怖的东西还能干什么？"],
+          ["other", "我以前和你在一起的时候怎么没看见你这样呢？"],
+          ["me", "你不要这样了好吗？"],
+          ["other", "操你妈，你他妈能过就过，过不了就分"],
           ["me", "你又来了。"],
-          ["other", "我只是问一句，你就觉得我在吵？"],
-          ["me", "不是。只是最近压力大。"],
-          ["other", "压力大就可以三天不见面，消息也隔很久才回？"],
-          ["me", "我明天补偿你。"],
-          ["other", "补偿你妈呢？你每次都这么说。"],
+          ["other", "我再问你一遍什么时候回来？"],
+          ["me", "..."],
+          ["me", "一会就回去了。"],
+          ["other", "十点之前不回来你就他妈的等着吧。"],
+          ["me", "好"],
+          ["time", "2026/10/12 22:01"],
+          ["other", "你他妈的真牛逼，你他妈的给老子等着"],
           ["me", "我真的有事。"],
-          ["other", "什么事？又是你那个破素材？"],
+          ["other", "你除了你那些死妈的照片还有他妈的什么逼事？"],
           ["me", "你怎么知道？"],
-          ["other", "操你妈，你现在到底把我放在什么位置？"],
+          ["other", "操你妈，在你心里到底把我放在什么位置？"],
           ["time", "今天 22:01"],
-          ["other", "去你妈的！"]
+          ["other", "陈陌都和我说了你要去古堡的事情。"],
+          ["other", "对不起宝宝。我之前说话太难听了，对不起，因为我实在是太担心你了宝宝，这次你去古堡的话我也要去。"]
         ]
       }
     };
+
+    const momentsData = {
+      one: {
+        name: "陈陌",
+        avatar: "陈",
+        avatarClass: "a1",
+        avatarImg: "assets/avatars/chen.jpg",
+        coverImg: "assets/moments/chen-cover.jpg",
+        posts: [
+          { text: "加班到凌晨，出来路边摊吃碗面。这个老板居然还记得我的口味。老板说最近城北那边总有人半夜往古堡方向走，不知道在搞什么。" },
+          { text: "刚看到古堡那新闻了，感觉有点意思啊。有没有人敢一起去的？在线等。这种地方不去一次真的会后悔。", img: "assets/moments/chen-castle-news.png" },
+          { text: "新买的球鞋到了！等等...怎么左脚比右脚大一号？？？找客服理论去了" },
+          { text: "今天在地图上搜了一下城北古堡的位置，发现那里居然连路都标注不清楚。越看越觉得神秘。" },
+          { text: "和兄弟们打球赢了，今晚烧烤走起。说了下古堡的事，他们都说我是疯了才要去。" },
+          { text: "分享一下我拍的照片，城北那边的老建筑。氛围感拉满。以后要拍视频说不定可以用这些素材。" },
+          { text: "周末在老城区瞎逛，发现了一条从来没走过的巷子。巷子尽头有个废弃的小卖部，里面还有九十年代的零食包装。", img: "assets/moments/chen-alley.png" },
+          { text: "公司楼下新开了一家奶茶店，味道居然还不错。推荐给大家。", img: "assets/moments/chen-milktea.jpg" },
+          { text: "今天被老板骂了一顿，理由是开会的时候笑出声了。问题是同事讲了个真的很好笑的段子啊。" },
+          { text: "翻了翻以前的照片，发现自己拍照技术真的进步了好多。最早那些简直不能看。", img: "assets/moments/chen-photos-progress.jpg" }
+        ]
+      },
+      two: {
+        name: "林晚",
+        avatar: "林",
+        avatarClass: "a2",
+        avatarImg: "assets/avatars/lin.jpg",
+        coverImg: "assets/moments/lin-cover.jpg",
+        posts: [
+          { text: "今天在咖啡馆看了一下午的书，窗外下着小雨，很舒服。书里刚好有一章讲的是关于老建筑的，突然就想到他了。", img: "assets/moments/lin-coffee.jpg" },
+          { text: "好久没拍照了，翻出以前在老城区拍的照片，有些地方现在已经变了。城北那边的古堡不知道还在不在。" },
+          { text: "听说城北那边有个古堡？好早之前就听人说过，感觉挺神秘的...要是能去看看就好了。不知道他会不会答应带我去。" },
+          { text: "苏晓今天又跟我吐槽他了，说他又在搞那些恐怖的东西。我觉得挺好的啊，总比什么都不做强。" },
+          { text: "周末在家做了一顿饭，感觉自己厨艺进步了！开心。红烧排骨终于不糊了。", img: "assets/moments/lin-cooking.jpg" },
+          { text: "和闺蜜逛街，买了一件新外套。秋天真的来了。路上经过一个旧书店，进去待了一个小时。" },
+          { text: "在图书馆找到了一本关于本地老建筑的画册，里面居然有城北古堡的照片。拍了几张留着。" },
+          { text: "今天的夕阳好美。下班路上忍不住拍了好几张。住在这座城市这么久，还是第一次认真看夕阳。", img: "assets/moments/lin-sunset.jpg" },
+          { text: "学了一道新的甜品，提拉米苏。第一次做居然还挺成功的！下次带给他尝尝吧。", img: "assets/moments/lin-tiramisu.jpg" },
+          { text: "整理房间的时候翻到了高中的毕业照，大家都好年轻啊。时间过得太快了。", img: "assets/moments/lin-graduation.png" },
+          { text: "看了一部关于城市探索的纪录片，突然觉得那些废弃的地方有一种特别的美。可能这就是他喜欢拍那些东西的原因吧。" },
+          { text: "今天在公园看到有人在遛一只萨摩耶，超级可爱！好想养一只狗。", img: "assets/moments/lin-samoyed.jpg" }
+        ]
+      },
+      three: {
+        name: "苏晓",
+        avatar: "苏",
+        avatarClass: "a3",
+        avatarImg: "assets/avatars/su.jpg",
+        coverImg: "assets/moments/su-cover.jpg",
+        posts: [
+          { text: "加班到现在，气死了。回到家还要面对一堆事。他又不接电话，到底在搞什么。" },
+          { text: "他最近到底在忙什么啊？？？每次找他都不在，发消息也不回。烦死了。陈陌说他要去什么古堡？有毛病吧。" },
+          { text: "今天买了一杯奶茶，总算心情好了一点。跟林晚吐槽了一下午。" },
+          { text: "说真的，他拍的那些照片我真的欣赏不来...但是他说那是艺术，行吧。我只是希望他能找份正经工作。" },
+          { text: "和闺蜜去逛街了！买了好多东西，心情大好。暂时不想那些烦心事了。" },
+          { text: "今天又和他吵架了。他说我不理解他，我说他不关心我。每次都是这样。" },
+          { text: "翻到以前的照片了，那时候我们刚在一起，他还不会整天拍那些奇怪的东西。" },
+          { text: "工作上的事终于搞定了，累死了。不过至少有一件事是顺利的。" },
+          { text: "今天试了一个新的餐厅，环境不错，菜也好吃。下次可以带他来，如果他愿意出来的话。" },
+          { text: "和林晚好久没聚了，约了周末一起吃饭。她说最近在研究什么老建筑的事，不会是受他影响吧。" },
+          { text: "看了一部综艺，笑死我了。难得有一部不用动脑子的好节目。" }
+        ]
+      }
+    };
+
+    function openMoments(chatId) {
+      const data = momentsData[chatId];
+      if (!data) return;
+
+      document.getElementById("momentsTitle").textContent = data.name + "的朋友圈";
+      document.getElementById("momentsCoverName").textContent = data.name;
+      const coverBg = document.querySelector(".moments-cover-bg");
+      if (data.coverImg) {
+        coverBg.style.backgroundImage = `url('${data.coverImg}')`;
+        coverBg.style.backgroundSize = "cover";
+        coverBg.style.backgroundPosition = "center";
+      } else {
+        coverBg.style.backgroundImage = "none";
+        coverBg.style.background = "#333";
+      }
+
+      const list = document.getElementById("momentsList");
+      let html = "";
+      data.posts.forEach(post => {
+        const avatarHtml = data.avatarImg
+          ? `<span class="moment-avatar ${data.avatarClass} has-img" style="--avatar-img:url('${data.avatarImg}')"></span>`
+          : `<span class="moment-avatar ${data.avatarClass}">${data.avatar}</span>`;
+        html += '<div class="moment-item">';
+        html += '<div class="moment-header">' + avatarHtml + '<span class="moment-name">' + data.name + '</span></div>';
+        html += '<div class="moment-text">' + post.text + '</div>';
+        if (post.img) {
+          html += '<img class="moment-image" src="' + post.img + '" alt="">';
+        } else if (post.emoji) {
+          html += '<div class="moment-image-emoji" style="background:linear-gradient(145deg,#e8e8e8,#ccc);">' + post.emoji + '</div>';
+        }
+        html += '</div>';
+      });
+      list.innerHTML = html;
+      showView(momentsView);
+    }
 
     function playWechatSound() {
       if (!wechatSound) return;
@@ -1742,7 +2077,7 @@
     function showView(view) {
       if ((storyState.isPossessed || storyState.possessionPending) && view !== chatView) return;
       updateChatPreviews();
-      [homeView, wechatView, chatView, articleView].forEach(v => v.classList.remove("active"));
+      [homeView, wechatView, momentsView, chatView, articleView].forEach(v => v.classList.remove("active"));
       view.classList.add("active");
     }
 
@@ -1883,6 +2218,12 @@
       replyChoices.classList.remove("show");
       chatView.classList.remove("choosing");
       storyState.choiceMode = null;
+      storyState.currentChatId = id;
+
+      // Track time spent in Su's chat (cumulative 4s triggers chen choice)
+      if (id === "three") {
+        storyState.suChatEnterTime = Date.now();
+      }
 
       const marker = document.createElement("div");
       marker.className = "day-marker";
@@ -1907,7 +2248,17 @@
 
         const avatar = document.createElement("span");
         avatar.className = `mini-avatar ${who === "me" ? "" : chat.avatarClass}`;
-        avatar.textContent = who === "me" ? "男" : chat.avatar;
+        if (who === "me") {
+          avatar.textContent = "";
+        } else {
+          if (chat.avatarImg) {
+            avatar.classList.add("has-img");
+            avatar.style.setProperty("--avatar-img", `url('${chat.avatarImg}')`);
+            avatar.textContent = "";
+          } else {
+            avatar.textContent = chat.avatar;
+          }
+        }
 
         const bubble = document.createElement("div");
         bubble.className = "bubble";
@@ -1952,6 +2303,27 @@
 
       checkPublicNoticeTrigger(id);
       checkAfterForumMysteryUnlock();
+
+      // If chen choice is ready and this is chen chat, trigger first choice scene
+      if (id === "one" && storyState.chenChoiceReady && !storyState.chenChoiceStarted) {
+        window.setTimeout(() => startChenChoiceScene(), 800);
+      }
+
+      // If su choice is ready and this is su chat, trigger su choice scene
+      if (id === "three" && storyState.suChoiceReady && !storyState.suChoiceStarted) {
+        window.setTimeout(() => startSuChoiceScene(), 800);
+      }
+    }
+
+    // Called when leaving chat view
+    function onLeaveChat(currentChatId) {
+      if (currentChatId === "three" && !storyState.chenChoiceReady && storyState.suChatEnterTime) {
+        const duration = Date.now() - storyState.suChatEnterTime;
+        if (duration >= 4000) {
+          storyState.chenChoiceReady = true;
+        }
+      }
+      storyState.suChatEnterTime = null;
     }
 
     function checkPublicNoticeTrigger(currentChatId) {
@@ -1965,17 +2337,11 @@
         return;
       }
 
+      // After seeing all 3 chats and article read, trigger Chen choice scene directly (no notification popup)
       cancelPublicNoticeTimer();
-      storyState.publicNoticeTimer = window.setTimeout(() => {
-        if (storyState.articleRead || storyState.suNoticeShown || articleView.classList.contains("active")) return;
-        showNotification({
-          icon: "闻",
-          title: "本地旧闻",
-          text: "二十年前的古堡，到底有什么秘密！",
-          autoHide: false,
-          onClick: openArticle
-        });
-      }, 4500);
+      if (storyState.articleRead) {
+        storyState.chenChoiceReady = true;
+      }
     }
 
     function setLocalNewsMystery() {
@@ -2050,38 +2416,8 @@
       storyState.suNoticeShown = true;
       cancelPublicNoticeTimer();
 
-      showNotification({
-        icon: "苏",
-        iconClass: "su",
-        title: "苏晓",
-        text: "陈陌都跟我说了，不管怎么说我也是你女朋友，我要和你一起去。",
-        autoHide: false,
-        onClick: handleSuNotice
-      });
-    }
-
-    function handleSuNotice() {
-      hideNotification();
-      ensureSuPlanMessage();
-      renderChat("three");
-      scrollMessagesToBottom(7);
-
-      window.setTimeout(() => {
-        showView(wechatView);
-      }, 4300);
-
-      window.setTimeout(() => {
-        startChenChoiceScene();
-      }, 5300);
-    }
-
-    function ensureSuPlanMessage() {
-      if (storyState.suNewMessageAdded) return;
-      chats.three.messages.push(["time", "今天 22:08"]);
-      chats.three.messages.push(["other", SU_PLAN_MESSAGE]);
-      chats.three.listTime = "22:08";
-      storyState.suNewMessageAdded = true;
-      updateChatPreview("three");
+      // Don't auto-jump to Chen after reading article
+      // Instead, show chen choice after user has seen all 3 chats
     }
 
     function startChenChoiceScene() {
@@ -2176,7 +2512,17 @@
 
         const avatar = document.createElement("span");
         avatar.className = `mini-avatar ${who === "me" ? "" : chat.avatarClass}`;
-        avatar.textContent = who === "me" ? "男" : chat.avatar;
+        if (who === "me") {
+          avatar.textContent = "";
+        } else {
+          if (chat.avatarImg) {
+            avatar.classList.add("has-img");
+            avatar.style.setProperty("--avatar-img", `url('${chat.avatarImg}')`);
+            avatar.textContent = "";
+          } else {
+            avatar.textContent = chat.avatar;
+          }
+        }
 
         const bubble = document.createElement("div");
         bubble.className = "bubble";
@@ -2222,12 +2568,12 @@
       chatTitle.textContent = "对方正在输入中...";
       window.setTimeout(() => {
         chatTitle.textContent = "陈陌";
-        appendChatLine("one", "other", "没办法，嫂子一直在逼着我让我说。我不给他发消息就一直打电话，然后说什么要报警。我想这不能把事情闹大，所以就和他说了。", { listTime: "22:10" });
+        appendChatLine("one", "other", "没办法，苏晓一直在逼着我让我说。我不给他发消息就一直打电话，然后说什么要报警。我想这不能把事情闹大，所以就和他说了。", { listTime: "22:10" });
       }, 4500);
       window.setTimeout(() => {
         showReplyChoices("chen-followup", [
-          "行吧行吧，你记得准备一下。还有你去看看能不能找到关于古堡的信息",
-          "。。。"
+          "行吧行吧，你记得准备一下。",
+          "。。。。。。"
         ]);
       }, 5600);
     }
@@ -2262,15 +2608,13 @@
       }, 2400);
 
       window.setTimeout(() => {
-        showView(wechatView);
-        window.setTimeout(startSuChoiceScene, 850);
+        storyState.suChoiceReady = true;
       }, 3400);
     }
 
     function startSuChoiceScene() {
       if (storyState.suChoiceStarted) return;
       storyState.suChoiceStarted = true;
-      ensureSuPlanMessage();
       renderChat("three");
       window.setTimeout(() => {
         showReplyChoices("su", [
@@ -2295,8 +2639,7 @@
 
       window.setTimeout(() => {
         appendChatLine("three", "other", suReply, { listTime: "22:10" });
-        storyState.possessionPending = true;
-        window.setTimeout(playPossessionGlitch, 3600);
+        window.setTimeout(triggerChenForumNotice, 2800);
       }, 900);
     }
 
@@ -2462,6 +2805,19 @@
       btn.addEventListener("click", () => renderChat(btn.dataset.chat));
     });
 
+    document.getElementById("backFromMoments").addEventListener("click", () => showView(chatView));
+
+    document.getElementById("messages").addEventListener("click", (e) => {
+      const avatarEl = e.target.closest(".message-row.other .mini-avatar");
+      if (avatarEl && storyState.choiceMode) return;
+      if (avatarEl) {
+        const currentChat = chatTitle.textContent;
+        const chatIdMap = { "陈陌": "one", "林晚": "two", "苏晓": "three" };
+        const chatId = chatIdMap[currentChat];
+        if (chatId) openMoments(chatId);
+      }
+    });
+
     document.querySelectorAll("[data-news]").forEach(btn => {
       btn.addEventListener("click", openArticle);
     });
@@ -2481,6 +2837,7 @@
         showToast("现在无法退出。");
         return;
       }
+      onLeaveChat(storyState.currentChatId);
       if (storyState.afterForumReturn && storyState.afterForumChenOpened) {
         addAfterForumFollowups();
       }
